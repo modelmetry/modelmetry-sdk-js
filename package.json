@@ -10,16 +10,19 @@
     "build": "tsc",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "openapi:gen": "openapi-typescript ./openapi.yaml -o ./src/openapi/schema.d.ts"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@vitest/ui": "^2.0.5",
+    "openapi-fetch": "^0.10.4",
+    "openapi-typescript": "^7.2.0",
+    "typescript": "^5.5.4",
     "vite": "^5.3.5",
-    "vitest": "^2.0.5",
-    "typescript": "^5.5.4"
+    "vitest": "^2.0.5"
   },
   "files": [
     "/dist"
