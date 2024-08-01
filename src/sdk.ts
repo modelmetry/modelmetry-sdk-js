@@ -3,12 +3,14 @@ import type { paths } from "./openapi";
 import { GuardrailsClient } from "./guardrails/guardrails-client";
 
 type ModelmetryClientOptions = {
+  tenantId: string;
   apikey: string;
   baseUrl: string;
   fetch?: typeof globalThis.fetch;
 };
 
 export class ModelmetryClient {
+  private tenantId: string;
   private apikey: string;
   private baseUrl: string;
   private fetch: typeof globalThis.fetch;
@@ -18,10 +20,14 @@ export class ModelmetryClient {
 
   constructor(options: ModelmetryClientOptions) {
     if (!options.apikey.length) {
-      throw new Error("API key not set. Please set the API key before making requests.");
+      throw new Error("API key not set. Please set the API key when initialising ModelmetryClient.");
+    }
+    if (!options.tenantId.length || !options.tenantId.startsWith("ten_")) {
+      throw new Error("Tenant id not set or invalid. Please set a valid tenant id when initialising ModelmetryClient.");
     }
 
     // Initialize the overarching client
+    this.tenantId = options.tenantId
     this.apikey = options.apikey;
     this.baseUrl = options.baseUrl;
     this.fetch = options.fetch ?? globalThis.fetch;
@@ -32,7 +38,7 @@ export class ModelmetryClient {
     this.client.use(this.authenticateRequestMiddleware());
 
     // Initialize the Guardrails client
-    this._guardrails = new GuardrailsClient({ client: this.client });
+    this._guardrails = new GuardrailsClient({ client: this.client, tenantId: this.tenantId });
   }
 
   guardrails() {
