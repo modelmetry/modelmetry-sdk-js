@@ -1,6 +1,7 @@
 {
   "name": "modelmetry-sdk-js",
   "version": "0.0.1",
+  "type": "module",
   "description": "The Modelmetry JS/Ts SDK allows developers to easily integrate Modelmetry's advanced guardrails and monitoring capabilities into their LLM-powered applications.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +14,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@vitest/ui": "^2.0.5",
     "vite": "^5.3.5",
