@@ -4,8 +4,11 @@ testui:
 test:
 	@npm run test:run
 
-build: test
+build:
 	@npm run build
+
+publish: 
+	@npm publish --access public
 
 specdl:
 	@echo "Downloading OpenAPI spec..."
