@@ -1,0 +1,33 @@
+{
+  "name": "modelmetry-sdk-js",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "The Modelmetry JS/Ts SDK allows developers to easily integrate Modelmetry's advanced guardrails and monitoring capabilities into their LLM-powered applications.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "openapi:gen": "openapi-typescript ./openapi.yaml -o ./src/openapi/schema.d.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.2",
+    "@vitest/ui": "^2.0.5",
+    "dotenv": "^16.4.5",
+    "openapi-fetch": "^0.10.4",
+    "openapi-typescript": "^7.2.0",
+    "tsx": "^4.16.5",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5",
+    "vitest": "^2.0.5"
+  },
+  "files": [
+    "/dist"
+  ]
+}

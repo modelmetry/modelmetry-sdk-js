@@ -1,0 +1,1022 @@
+components:
+  schemas:
+    Call:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/Call.json
+          format: uri
+          readOnly: true
+          type: string
+        CreatedAt:
+          format: date-time
+          type: string
+        CreatedBy:
+          type: string
+        DurationMs:
+          format: int64
+          type: integer
+        GuardrailID:
+          type: string
+        ID:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Outcome:
+          enum:
+            - pass
+            - fail
+            - error
+          type: string
+        Payload:
+          $ref: "#/components/schemas/Payload"
+        SummarisedEntries:
+          items:
+            $ref: "#/components/schemas/SummarisedEntry"
+          type: array
+        TenantID:
+          type: string
+        UpdatedAt:
+          format: date-time
+          type: string
+        UpdatedBy:
+          type: string
+      required:
+        - ID
+        - TenantID
+        - GuardrailID
+        - Payload
+        - Outcome
+        - Metadata
+        - SummarisedEntries
+        - DurationMs
+        - UpdatedAt
+        - UpdatedBy
+        - CreatedAt
+        - CreatedBy
+      type: object
+    CallGuardrailRequestBody:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/CallGuardrailRequestBody.json
+          format: uri
+          readOnly: true
+          type: string
+        GuardrailID:
+          type: string
+        Payload:
+          $ref: "#/components/schemas/Payload"
+        TenantID:
+          type: string
+      required:
+        - TenantID
+        - GuardrailID
+        - Payload
+      type: object
+    ChatInput:
+      additionalProperties: false
+      properties:
+        Messages:
+          items:
+            $ref: "#/components/schemas/SimpleMessage"
+          type: array
+        Settings:
+          $ref: "#/components/schemas/SimpleOptions"
+      required:
+        - Settings
+      type: object
+    ChatOutput:
+      additionalProperties: false
+      properties:
+        Messages:
+          items:
+            $ref: "#/components/schemas/SimpleMessage"
+          type: array
+        Settings:
+          $ref: "#/components/schemas/SimpleOptions"
+      required:
+        - Settings
+      type: object
+    CompletionPayload:
+      additionalProperties: false
+      properties:
+        Context:
+          $ref: "#/components/schemas/CompletionPayloadContext"
+        Input:
+          $ref: "#/components/schemas/Input"
+        Model:
+          type: string
+        Options:
+          $ref: "#/components/schemas/SimpleOptions"
+        Output:
+          $ref: "#/components/schemas/Output"
+      required:
+        - Model
+        - Options
+      type: object
+    CompletionPayloadContext:
+      additionalProperties: false
+      properties:
+        ParsedSystem:
+          type: string
+        RetrievedItems:
+          items:
+            $ref: "#/components/schemas/RetrievedItem"
+          type: array
+      required:
+        - ParsedSystem
+        - RetrievedItems
+      type: object
+    CreateEventParams:
+      additionalProperties: false
+      properties:
+        At:
+          format: date-time
+          type:
+            - string
+            - "null"
+        Attributes:
+          additionalProperties: {}
+          type: object
+        EntryID:
+          type:
+            - string
+            - "null"
+        Name:
+          type: string
+        SpanID:
+          type:
+            - string
+            - "null"
+        TraceID:
+          type:
+            - string
+            - "null"
+        XID:
+          type: string
+      required:
+        - XID
+        - Name
+      type: object
+    CreateFindingParams:
+      additionalProperties: false
+      properties:
+        At:
+          format: date-time
+          type:
+            - string
+            - "null"
+        Comment:
+          type:
+            - string
+            - "null"
+        Description:
+          type:
+            - string
+            - "null"
+        EntryID:
+          type:
+            - string
+            - "null"
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Name:
+          type: string
+        Source:
+          type:
+            - string
+            - "null"
+        SpanID:
+          type:
+            - string
+            - "null"
+        TraceID:
+          type:
+            - string
+            - "null"
+        Value:
+          oneOf:
+            - type: number
+            - type: boolean
+            - type: string
+        XID:
+          type: string
+      required:
+        - XID
+        - Name
+        - Value
+      type: object
+    CreateSessionParams:
+      additionalProperties: false
+      properties:
+        Attributes:
+          additionalProperties: {}
+          type: object
+        Name:
+          type:
+            - string
+            - "null"
+        XID:
+          type: string
+      required:
+        - XID
+      type: object
+    CreateSpanParams:
+      additionalProperties: false
+      properties:
+        Attributes:
+          additionalProperties: {}
+          type: object
+        End:
+          format: date-time
+          type:
+            - string
+            - "null"
+        Family:
+          type:
+            - string
+            - "null"
+        FamilyData: {}
+        Message:
+          type:
+            - string
+            - "null"
+        Name:
+          type: string
+        ParentID:
+          type:
+            - string
+            - "null"
+        Severity:
+          type:
+            - string
+            - "null"
+        Start:
+          format: date-time
+          type: string
+        TraceID:
+          type: string
+        XID:
+          type: string
+      required:
+        - TraceID
+        - XID
+        - Name
+        - Start
+        - End
+      type: object
+    CreateTraceParams:
+      additionalProperties: false
+      properties:
+        Attributes:
+          additionalProperties: {}
+          type: object
+        End:
+          format: date-time
+          type:
+            - string
+            - "null"
+        Name:
+          type:
+            - string
+            - "null"
+        SessionID:
+          type:
+            - string
+            - "null"
+        Start:
+          format: date-time
+          type: string
+        XID:
+          type: string
+      required:
+        - XID
+        - Start
+      type: object
+    EmbeddingsPayload:
+      additionalProperties: false
+      properties:
+        Inputs:
+          items:
+            type: string
+          type: array
+        Options:
+          $ref: "#/components/schemas/SimpleOptions"
+      required:
+        - Inputs
+        - Options
+      type: object
+    ErrorDetail:
+      additionalProperties: false
+      properties:
+        location:
+          description: Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
+          type: string
+        message:
+          description: Error message text
+          type: string
+        value:
+          description: The value at the given location
+      type: object
+    ErrorModel:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/ErrorModel.json
+          format: uri
+          readOnly: true
+          type: string
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          examples:
+            - Property foo is required but is missing.
+          type: string
+        errors:
+          description: Optional list of individual error details
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+          type: array
+        instance:
+          description: A URI reference that identifies the specific occurrence of the problem.
+          examples:
+            - https://example.com/error-log/abc123
+          format: uri
+          type: string
+        status:
+          description: HTTP status code
+          examples:
+            - 400
+          format: int64
+          type: integer
+        title:
+          description: A short, human-readable summary of the problem type. This value should not change between occurrences of the error.
+          examples:
+            - Bad Request
+          type: string
+        type:
+          default: about:blank
+          description: A URI reference to human-readable documentation for the error.
+          examples:
+            - https://example.com/errors/example
+          format: uri
+          type: string
+      type: object
+    Event:
+      additionalProperties: false
+      properties:
+        At:
+          format: date-time
+          type: string
+        Attributes:
+          additionalProperties: {}
+          type: object
+        CreatedAt:
+          format: date-time
+          type: string
+        EntryID:
+          type:
+            - string
+            - "null"
+        ID:
+          type: string
+        Name:
+          type: string
+        SpanID:
+          type:
+            - string
+            - "null"
+        TenantID:
+          type: string
+        TraceID:
+          type:
+            - string
+            - "null"
+        UpdatedAt:
+          format: date-time
+          type: string
+        XID:
+          type: string
+      required:
+        - ID
+        - XID
+        - TenantID
+        - Name
+        - Attributes
+        - At
+        - UpdatedAt
+        - CreatedAt
+        - TraceID
+        - SpanID
+        - EntryID
+      type: object
+    Finding:
+      additionalProperties: false
+      properties:
+        At:
+          format: date-time
+          type: string
+        Comment:
+          type: string
+        CreatedAt:
+          format: date-time
+          type: string
+        EntryID:
+          type:
+            - string
+            - "null"
+        EvaluatorID:
+          type:
+            - string
+            - "null"
+        ID:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Name:
+          type: string
+        Source:
+          enum:
+            - annotation
+            - api
+            - enduser
+            - evaluator
+          type: string
+        SpanID:
+          type:
+            - string
+            - "null"
+        TenantID:
+          type: string
+        TraceID:
+          type:
+            - string
+            - "null"
+        UpdatedAt:
+          format: date-time
+          type: string
+        Value:
+          oneOf:
+            - type: number
+            - type: boolean
+            - type: string
+        XID:
+          type: string
+      required:
+        - ID
+        - XID
+        - Name
+        - TenantID
+        - TraceID
+        - SpanID
+        - EntryID
+        - Value
+        - Source
+        - Comment
+        - Metadata
+        - EvaluatorID
+        - At
+        - UpdatedAt
+        - CreatedAt
+      type: object
+    Function:
+      additionalProperties: false
+      properties:
+        Arguments: {}
+        Name:
+          type: string
+      required:
+        - Name
+        - Arguments
+      type: object
+    IngestSignalsV1RequestBody:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/IngestSignalsV1RequestBody.json
+          format: uri
+          readOnly: true
+          type: string
+        Events:
+          items:
+            $ref: "#/components/schemas/CreateEventParams"
+          type: array
+        Findings:
+          items:
+            $ref: "#/components/schemas/CreateFindingParams"
+          type: array
+        Sessions:
+          items:
+            $ref: "#/components/schemas/CreateSessionParams"
+          type: array
+        Spans:
+          items:
+            $ref: "#/components/schemas/CreateSpanParams"
+          type: array
+        Traces:
+          items:
+            $ref: "#/components/schemas/CreateTraceParams"
+          type: array
+      type: object
+    Input:
+      additionalProperties: false
+      properties:
+        Chat:
+          $ref: "#/components/schemas/ChatInput"
+        Text:
+          $ref: "#/components/schemas/TextInput"
+      type: object
+    OtherPayload:
+      additionalProperties: false
+      type: object
+    Output:
+      additionalProperties: false
+      properties:
+        Chat:
+          $ref: "#/components/schemas/ChatOutput"
+        Text:
+          $ref: "#/components/schemas/TextOutput"
+      type: object
+    Payload:
+      additionalProperties: false
+      properties:
+        Input:
+          $ref: "#/components/schemas/Input"
+        Output:
+          $ref: "#/components/schemas/Output"
+      type: object
+    RetrievalPayload:
+      additionalProperties: false
+      properties:
+        Queries:
+          items:
+            $ref: "#/components/schemas/RetrievalQuery"
+          type: array
+        Retrieved:
+          items:
+            $ref: "#/components/schemas/RetrievedItem"
+          type: array
+      required:
+        - Queries
+        - Retrieved
+      type: object
+    RetrievalQuery:
+      additionalProperties: false
+      properties:
+        Embeddings:
+          items:
+            format: float
+            type: number
+          type: array
+        Name:
+          type: string
+      required:
+        - Name
+        - Embeddings
+      type: object
+    RetrievedItem:
+      additionalProperties: false
+      properties:
+        Content: {}
+        ContentType:
+          type: string
+        Identifier:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+      required:
+        - Identifier
+        - ContentType
+        - Content
+        - Metadata
+      type: object
+    SimpleMessage:
+      additionalProperties: false
+      properties:
+        Contents:
+          items:
+            $ref: "#/components/schemas/SimplePart"
+          minItems: 1
+          type: array
+        Name:
+          type: string
+        Role:
+          enum:
+            - system
+            - user
+            - assistant
+            - tool
+            - function
+          type: string
+        ToolCallID:
+          type: string
+        ToolCalls:
+          items:
+            $ref: "#/components/schemas/ToolCall"
+          type: array
+      required:
+        - Role
+        - Contents
+      type: object
+    SimpleOptions:
+      additionalProperties: false
+      properties:
+        FrequencyPenalty:
+          format: double
+          type: number
+        Logprobs:
+          type: boolean
+        MaxTokens:
+          format: int64
+          type: integer
+        "N":
+          format: int64
+          type: integer
+        PresencePenalty:
+          format: double
+          type: number
+        Seed:
+          format: int64
+          type: integer
+        Stream:
+          type: boolean
+        Temperature:
+          format: double
+          maximum: 1
+          minimum: 0
+          type: number
+        Timeout:
+          format: double
+          minimum: 0
+          type: number
+        ToolChoice:
+          type: string
+        Tools:
+          items:
+            $ref: "#/components/schemas/Tool"
+          type: array
+        TopLogprobs:
+          format: int64
+          type: integer
+        TopP:
+          format: double
+          maximum: 1
+          minimum: 0
+          type: number
+        User:
+          type: string
+      type: object
+    SimplePart:
+      additionalProperties: false
+      properties:
+        Detail:
+          enum:
+            - auto
+            - low
+            - high
+          type: string
+        MimeType:
+          type: string
+        Text:
+          type: string
+        URI:
+          type: string
+      required:
+        - Text
+      type: object
+    SimplifiedFinding:
+      additionalProperties: false
+      properties:
+        At:
+          format: date-time
+          type: string
+        Comment:
+          type: string
+        EvaluatorID:
+          type:
+            - string
+            - "null"
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Name:
+          type: string
+        Source:
+          enum:
+            - annotation
+            - api
+            - enduser
+            - evaluator
+          type: string
+        Value:
+          oneOf:
+            - type: number
+            - type: boolean
+            - type: string
+      required:
+        - Name
+        - Value
+        - Source
+        - Comment
+        - Metadata
+        - EvaluatorID
+        - At
+      type: object
+    Span:
+      additionalProperties: false
+      properties:
+        Attributes:
+          additionalProperties: {}
+          type: object
+        Completion:
+          $ref: "#/components/schemas/CompletionPayload"
+        CreatedAt:
+          format: date-time
+          type: string
+        Embeddings:
+          $ref: "#/components/schemas/EmbeddingsPayload"
+        End:
+          format: date-time
+          type: string
+        Events:
+          items:
+            $ref: "#/components/schemas/Event"
+          type: array
+        Family:
+          type: string
+        Findings:
+          items:
+            $ref: "#/components/schemas/Finding"
+          type: array
+        ID:
+          type: string
+        Message:
+          type: string
+        Name:
+          type: string
+        Other:
+          $ref: "#/components/schemas/OtherPayload"
+        ParentID:
+          type:
+            - string
+            - "null"
+        Retrieval:
+          $ref: "#/components/schemas/RetrievalPayload"
+        Severity:
+          type: string
+        Start:
+          format: date-time
+          type: string
+        TenantID:
+          type: string
+        TraceID:
+          type: string
+        UpdatedAt:
+          format: date-time
+          type: string
+        XID:
+          type: string
+      required:
+        - ID
+        - XID
+        - TenantID
+        - TraceID
+        - ParentID
+        - Name
+        - Family
+        - Severity
+        - Message
+        - Start
+        - End
+        - Embeddings
+        - Retrieval
+        - Completion
+        - Other
+        - Attributes
+        - Events
+        - Findings
+        - UpdatedAt
+        - CreatedAt
+      type: object
+    SummarisedEntry:
+      additionalProperties: false
+      properties:
+        DurationMs:
+          format: int64
+          type: integer
+        EvaluatorID:
+          type: string
+        Findings:
+          items:
+            $ref: "#/components/schemas/SimplifiedFinding"
+          type: array
+        ID:
+          type: string
+        InstanceID:
+          type:
+            - string
+            - "null"
+        Message:
+          type: string
+        Outcome:
+          type: string
+        Score:
+          format: double
+          type:
+            - number
+            - "null"
+        Skip:
+          type: string
+        TenantID:
+          type: string
+      required:
+        - ID
+        - TenantID
+        - InstanceID
+        - EvaluatorID
+        - Outcome
+        - Skip
+        - Message
+        - Score
+        - Findings
+        - DurationMs
+      type: object
+    TextInput:
+      additionalProperties: false
+      properties:
+        Text:
+          type: string
+      required:
+        - Text
+      type: object
+    TextOutput:
+      additionalProperties: false
+      properties:
+        Text:
+          type: string
+      required:
+        - Text
+      type: object
+    Tool:
+      additionalProperties: false
+      properties:
+        Description:
+          type: string
+        Name:
+          type: string
+        Parameters: {}
+      required:
+        - Name
+        - Description
+        - Parameters
+      type: object
+    ToolCall:
+      additionalProperties: false
+      properties:
+        Function:
+          $ref: "#/components/schemas/Function"
+        ID:
+          type: string
+        Type:
+          enum:
+            - function
+          type: string
+      required:
+        - Type
+        - ID
+        - Function
+      type: object
+    TraceWithSpans:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/TraceWithSpans.json
+          format: uri
+          readOnly: true
+          type: string
+        Attributes:
+          additionalProperties: {}
+          type: object
+        CreatedAt:
+          format: date-time
+          type: string
+        End:
+          format: date-time
+          type: string
+        ID:
+          type: string
+        Name:
+          type: string
+        SessionID:
+          type:
+            - string
+            - "null"
+        Spans:
+          items:
+            $ref: "#/components/schemas/Span"
+          type: array
+        Start:
+          format: date-time
+          type: string
+        TenantID:
+          type: string
+        UpdatedAt:
+          format: date-time
+          type: string
+        XID:
+          type: string
+      required:
+        - Spans
+        - ID
+        - XID
+        - TenantID
+        - SessionID
+        - Name
+        - Start
+        - End
+        - Attributes
+        - UpdatedAt
+        - CreatedAt
+      type: object
+  securitySchemes:
+    apikeyAuth:
+      in: header
+      name: X-API-KEY
+      type: apiKey
+info:
+  title: Modelmetry API
+  version: 1.0.0
+openapi: 3.1.0
+paths:
+  /calls:
+    post:
+      operationId: call-guardrail
+      parameters:
+        - explode: false
+          in: query
+          name: dryrun
+          schema:
+            type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CallGuardrailRequestBody"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Call"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      security:
+        - apikeyAuth: []
+      summary: CallGuardrail
+  /signals/ingest/v1:
+    post:
+      operationId: ingest-signals-v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngestSignalsV1RequestBody"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TraceWithSpans"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      security:
+        - apikeyAuth: []
+      summary: Ingest signals (v1)
+servers:
+  - url: http://api.modelmetry.com/
