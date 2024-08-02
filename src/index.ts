@@ -1,6 +1,2 @@
 
-export const newClient = () => {
-  return {
-    client: true,
-  }
-}
+export * from "./sdk"

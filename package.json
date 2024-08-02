@@ -17,9 +17,12 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^22.0.2",
     "@vitest/ui": "^2.0.5",
+    "dotenv": "^16.4.5",
     "openapi-fetch": "^0.10.4",
     "openapi-typescript": "^7.2.0",
+    "tsx": "^4.16.5",
     "typescript": "^5.5.4",
     "vite": "^5.3.5",
     "vitest": "^2.0.5"
