@@ -6,6 +6,8 @@ export type * from "./builders";
 // export common types
 export type schemas = components["schemas"];
 
+export type FamilyData = schemas["OtherPayload"] | schemas["CompletionPayload"] | schemas["RetrievalPayload"] | schemas["EmbeddingsPayload"];
+
 export type Call = schemas["Call"];
 
 export type APIError = schemas["ErrorModel"];
