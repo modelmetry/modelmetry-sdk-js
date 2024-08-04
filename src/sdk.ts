@@ -2,6 +2,7 @@ import createClient, { type Middleware, type Client } from "openapi-fetch";
 import type { paths } from "./openapi";
 import { GuardrailsClient } from "./guardrails/guardrails-client";
 import { isAPIError } from "./utils/problems";
+import { ObservabilityClient } from "./observability/observability-client";
 
 type ModelmetryClientOptions = {
   tenantId: string;
@@ -18,6 +19,7 @@ export class ModelmetryClient {
   private client: Client<paths>;
 
   private _guardrails: GuardrailsClient;
+  private _observability: ObservabilityClient;
 
   constructor(options: ModelmetryClientOptions) {
     if (!options.apikey.length) {
@@ -50,10 +52,20 @@ export class ModelmetryClient {
       client: this.client,
       tenantId: this.tenantId,
     });
+
+    // Initialize the Observability client
+    this._observability = new ObservabilityClient({
+      client: this.client,
+      tenantId: this.tenantId,
+    });
   }
 
   guardrails() {
     return this._guardrails;
+  }
+
+  observability() {
+    return this._observability;
   }
 
   getClient() {
