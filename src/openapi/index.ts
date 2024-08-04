@@ -10,7 +10,7 @@ export type FamilyData = schemas["OtherPayload"] | schemas["CompletionPayload"] 
 
 export type Call = schemas["Call"];
 
-export type APIError = schemas["ErrorModel"];
+export type ErrorModel = schemas["ErrorModel"];
 
 export type Payload = schemas["Payload"];
 

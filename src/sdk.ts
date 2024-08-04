@@ -1,7 +1,7 @@
 import createClient, { type Middleware, type Client } from "openapi-fetch";
 import type { paths } from "./openapi";
 import { GuardrailsClient } from "./guardrails/guardrails-client";
-import { isAPIError } from "./utils/problems";
+import { isErrorModel } from "./utils/problems";
 import { ObservabilityClient } from "./observability/observability-client";
 
 type ModelmetryClientOptions = {
@@ -87,7 +87,7 @@ export class ModelmetryClient {
         }
 
         const errorBody = (await response.json());
-        if (isAPIError(errorBody)) {
+        if (isErrorModel(errorBody)) {
           throw errorBody;
         }
 
