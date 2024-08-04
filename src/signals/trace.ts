@@ -146,6 +146,10 @@ export class Trace {
     return this.endedAt;
   }
 
+  hasEnded() {
+    return this.endedAt !== undefined;
+  }
+
   getStartedAt() {
     return this.startedAt;
   }
