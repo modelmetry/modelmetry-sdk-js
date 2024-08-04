@@ -28,7 +28,7 @@ export class Span {
     severity,
     family,
     attributes,
-    familyDate,
+    familyData,
   }: {
     traceId: string;
     name: string;
@@ -37,7 +37,7 @@ export class Span {
     severity?: schemas["Span"]["Severity"];
     attributes?: schemas["Span"]["Attributes"];
     family?: schemas["Span"]["Family"];
-    familyDate?: FamilyData;
+    familyData?: FamilyData;
   }) {
     this.traceId = traceId;
     this.xid = crypto.randomUUID();
@@ -46,7 +46,7 @@ export class Span {
     this.severity = severity || "unset";
     this.message = message || "";
     this.family = family || "";
-    this.familyData = familyDate || {};
+    this.familyData = familyData || {};
     this.attributes = attributes || {};
   }
 
@@ -114,6 +114,8 @@ export class Span {
       name,
       traceId: this.traceId,
       parentId: this.xid,
+      family: "unset",
+      familyData: {},
     });
     this.spans.push(span);
     return span;
