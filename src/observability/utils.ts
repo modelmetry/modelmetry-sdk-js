@@ -1,5 +1,14 @@
 import type { Finding, Trace, Event, IngestBatch } from "../signals";
 
+export const calculateKilobyteSize = (input: unknown): number => {
+  return calculcateByteSize(input) / 1024;
+}
+
+export const calculcateByteSize = (input: unknown): number => {
+  const str = JSON.stringify(input);
+  return new TextEncoder().encode(str).length;
+}
+
 export const buildIngestBatchFromTraces = (traces: Trace[]): IngestBatch => {
   for (const trace of traces) {
     trace.setEndedAtAutomatically();
