@@ -1,5 +1,5 @@
 import type { schemas } from "../openapi";
-import type { Span } from "./span";
+import type { Span } from "./span.base";
 
 export class Event {
   private readonly xid: string;

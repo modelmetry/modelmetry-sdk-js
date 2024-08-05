@@ -22,10 +22,10 @@ export const example = async () => {
 
   await asyncSleep(50);
 
-  const span1_1 = span1.newSpan("root.span1.1");
+  const span1_1 = span1.newEmbeddingsSpan("root.span1.1");
   await asyncSleep(50);
 
-  span1_1.end();
+  span1_1.end([[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14]]);
   span1.end();
 
   const span2 = trace.newSpan("root.span2");
@@ -37,14 +37,26 @@ export const example = async () => {
   span2_1.newEvent("something happened in span2.1");
   await asyncSleep(50);
 
-  const span2_2 = span2.newSpan("root.span2.2");
+  const span2_2 = span2.newCompletionSpan("root.span2.2");
   span2_2.newEvent("something happened in span2.2");
   span2_2.newEvent("something happened again in span2.2");
   await asyncSleep(50);
-  span2_1.end();
+  span2_1.errored(new Error("Something went wrong in span2.1"));
 
   await asyncSleep(50);
-  span2_2.end();
+  span2_2.end({
+    Input: {
+      Text: {
+        Text: "Hello, world!",
+      },
+    },
+    Output: {
+      Text: {
+        Text: "Oh hey, let me know if there's anything I can help with!",
+      },
+    },
+    Model: "openai/gpt-4o-mini",
+  });
   span2.end();
 
   await asyncSleep(50);

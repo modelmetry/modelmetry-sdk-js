@@ -1,8 +1,12 @@
+import type { Span } from ".";
 import type { schemas } from "../openapi";
 import { getDateMax } from "../utils/dates";
 import { Event } from "./event";
 import { Finding } from "./finding";
-import { Span } from "./span";
+import { CompletionSpan } from "./span.completion";
+import { EmbeddingsSpan } from "./span.embeddings";
+import { OtherSpan } from "./span.other";
+import { RetrievalSpan } from "./span.retrieval";
 
 export class Trace {
   private readonly xid: string;
@@ -54,12 +58,16 @@ export class Trace {
 
   // findings
 
-  newFinding(name: Finding["name"], value: Finding["value"], opts: Partial<{
-    comment?: Finding["comment"];
-    description?: Finding["description"];
-    metadata?: Finding["metadata"];
-    source?: Finding["source"];
-  }> = {}): Finding {
+  newFinding(
+    name: Finding["name"],
+    value: Finding["value"],
+    opts: Partial<{
+      comment?: Finding["comment"];
+      description?: Finding["description"];
+      metadata?: Finding["metadata"];
+      source?: Finding["source"];
+    }> = {},
+  ): Finding {
     const finding = new Finding({
       name,
       value,
@@ -120,27 +128,45 @@ export class Trace {
     return this;
   }
 
-  newSpan(name: string): Span {
-    const span = new Span({
+  // span factories
+
+  newSpan(name: string): OtherSpan {
+    const span = new OtherSpan({
       traceId: this.xid,
       name,
     });
-    span.setFamily("unset");
     this.spans.push(span);
     return span;
   }
 
-  newEmbeddingsSpan(name: string): Span {
-    return this.newSpan(name).setFamily("embeddings");
+  newEmbeddingsSpan(name: string): EmbeddingsSpan {
+    const span = new EmbeddingsSpan({
+      name,
+      traceId: this.xid,
+    });
+    this.spans.push(span);
+    return span;
   }
 
-  newRetrievalSpan(name: string): Span {
-    return this.newSpan(name).setFamily("retrieval");
+  newRetrievalSpan(name: string): RetrievalSpan {
+    const span = new RetrievalSpan({
+      name,
+      traceId: this.xid,
+    });
+    this.spans.push(span);
+    return span;
   }
 
-  newCompletionSpan(name: string): Span {
-    return this.newSpan(name).setFamily("completion");
+  newCompletionSpan(name: string): CompletionSpan {
+    const span = new CompletionSpan({
+      name,
+      traceId: this.xid,
+    });
+    this.spans.push(span);
+    return span;
   }
+
+  //
 
   getEndedAt() {
     return this.endedAt;
