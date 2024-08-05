@@ -4,9 +4,11 @@ import { Trace } from "../signals/trace";
 import { buildIngestBatchFromTraces, calculateKilobyteSize } from "./utils";
 import { APIError } from "../utils/problems";
 
-type ObservabilityClientOptions = {
+export type ObservabilityClientOptions = {
   tenantId: string;
   client: Client<paths>;
+
+  onFlushed?: (traces: Trace[]) => void;
 
   //
   maxBatchLen?: number;
@@ -28,15 +30,26 @@ export class ObservabilityClient {
   // in-transit
   private flights: Record<string, Promise<unknown>> = {}
   private inTransit: Record<string, Trace> = {};
+  private onFlushed: (traces: Trace[]) => void = () => { };
 
   constructor(options: ObservabilityClientOptions) {
     this.tenantId = options.tenantId;
     this.client = options.client;
 
+    if (options.onFlushed) {
+      this.onFlushed = options.onFlushed;
+    }
     if (options.intervalMs) {
       this.INTERVAL_MS = options.intervalMs;
-      this.startTimer();
     }
+    if (options.maxBatchLen) {
+      this.MAX_BATCH_LEN = options.maxBatchLen;
+    }
+    if (options.maxSizeKb) {
+      this.MAX_SIZE_KB = options.maxSizeKb;
+    }
+
+    this.startTimer();
   }
 
   getTenantId() {
@@ -104,7 +117,6 @@ export class ObservabilityClient {
 
     // bail early if there's nothing to flush
     if (tracesToTransit.length === 0) {
-      console.info("No traces to flush");
       return;
     }
 
@@ -123,6 +135,9 @@ export class ObservabilityClient {
 
       // handle errors
       if (error) throw new APIError(error);
+
+      // callback
+      this.onFlushed(tracesToTransit);
 
     } catch (error) {
 
@@ -148,12 +163,12 @@ export class ObservabilityClient {
 
   async flushIfConditionsFulfilled(): Promise<void> {
     const queue = this.getQueuedTraces();
-    if (queue.length > this.MAX_BATCH_LEN) {
+    if (queue.length >= this.MAX_BATCH_LEN) {
       return this.flushBatch(queue);
     }
 
     const size = calculateKilobyteSize(queue);
-    if (size > this.MAX_SIZE_KB) {
+    if (size >= this.MAX_SIZE_KB) {
       return this.flushBatch(queue);
     }
 
@@ -165,6 +180,8 @@ export class ObservabilityClient {
   }
 
   async shutdown(): Promise<void> {
+    this.stopTimer();
+
     try {
       // flush all traces
       await this.flushAll();

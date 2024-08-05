@@ -1,14 +1,18 @@
-import createClient, { type Middleware, type Client } from "openapi-fetch";
-import type { paths } from "./openapi";
+import createClient, { type Client, type Middleware } from "openapi-fetch";
 import { GuardrailsClient } from "./guardrails/guardrails-client";
+import {
+  ObservabilityClient,
+  type ObservabilityClientOptions,
+} from "./observability/observability-client";
+import type { paths } from "./openapi";
 import { isErrorModel } from "./utils/problems";
-import { ObservabilityClient } from "./observability/observability-client";
 
 type ModelmetryClientOptions = {
   tenantId: string;
   apikey: string;
   baseUrl: string;
   fetch?: typeof globalThis.fetch;
+  observability?: Omit<ObservabilityClientOptions, "tenantId" | "client">;
 };
 
 export class ModelmetryClient {
@@ -57,6 +61,7 @@ export class ModelmetryClient {
     this._observability = new ObservabilityClient({
       client: this.client,
       tenantId: this.tenantId,
+      ...options.observability || {},
     });
   }
 
@@ -83,17 +88,17 @@ export class ModelmetryClient {
 
         const isError = !response.ok || response.status >= 400;
         if (!isError) {
-          return response
+          return response;
         }
 
-        const errorBody = (await response.json());
+        const errorBody = await response.json();
         if (isErrorModel(errorBody)) {
           throw errorBody;
         }
 
         return new Response(body, { ...responseOptions });
       },
-    }
+    };
   };
 
   private authenticateRequestMiddleware: () => Middleware = () => {
