@@ -1,4 +1,4 @@
-import type { FamilyData, schemas } from "../openapi";
+import type { CompletionPayload, EmbeddingsPayload, FamilyData, OtherPayload, RetrievalPayload, schemas } from "../openapi";
 import { getDateMax } from "../utils/dates";
 import { Event } from "./event";
 import { Finding } from "./finding";
@@ -14,7 +14,12 @@ export class Span {
   private severity: schemas["Span"]["Severity"] = "unset"; // unset debug warning error
   private family: schemas["Span"]["Family"] = ""; // "" "embeddings" "retrieval" "completion"
   private attributes: schemas["Span"]["Attributes"] = {};
-  private familyData: FamilyData = {};
+  private familyData: {
+    Embeddings?: EmbeddingsPayload;
+    Retrieval?: RetrievalPayload;
+    Completion?: CompletionPayload;
+    Other?: FamilyData;
+  } = {};
 
   private spans: Span[] = [];
   private findings: Finding[] = [];
@@ -28,7 +33,6 @@ export class Span {
     severity,
     family,
     attributes,
-    familyData,
   }: {
     traceId: string;
     name: string;
@@ -37,7 +41,6 @@ export class Span {
     severity?: schemas["Span"]["Severity"];
     attributes?: schemas["Span"]["Attributes"];
     family?: schemas["Span"]["Family"];
-    familyData?: FamilyData;
   }) {
     this.traceId = traceId;
     this.xid = crypto.randomUUID();
@@ -46,7 +49,6 @@ export class Span {
     this.severity = severity || "unset";
     this.message = message || "";
     this.family = family || "";
-    this.familyData = familyData || {};
     this.attributes = attributes || {};
   }
 
@@ -115,14 +117,13 @@ export class Span {
       traceId: this.traceId,
       parentId: this.xid,
       family: "unset",
-      familyData: {},
     });
     this.spans.push(span);
     return span;
   }
 
-  newEmbeddingsSpan(name: string): Span {
-    return this.newSpan(name).setFamily("embeddings");
+  newEmbeddingsSpan(name: string, inputs: EmbeddingsPayload["Inputs"], options: EmbeddingsPayload["Options"]): Span {
+    return this.newSpan(name).setFamily("embeddings").setFamilyData({ Inputs: inputs, Options: options });
   }
 
   newRetrievalSpan(name: string): Span {
@@ -151,7 +152,26 @@ export class Span {
   }
 
   setFamilyData(familyData: FamilyData): Span {
-    this.familyData = familyData;
+    switch (this.family) {
+      case "embeddings": {
+        this.familyData.Embeddings = familyData as EmbeddingsPayload;
+        break;
+      }
+      case "retrieval": {
+        this.familyData.Retrieval = familyData as RetrievalPayload;
+        break;
+      }
+      case "completion":
+        {
+          this.familyData.Completion = familyData as CompletionPayload;
+          break;
+        }
+      default:
+        {
+          this.familyData.Other = familyData;
+          break;
+        }
+    }
     return this;
   }
 
@@ -246,26 +266,26 @@ export class Span {
   }
 
   getFamilyData() {
-    return this.familyData;
+    switch (this.family) {
+      case "embeddings":
+        return this.familyData.Embeddings || {};
+      case "retrieval":
+        return this.familyData.Retrieval || {};
+      case "completion":
+        return this.familyData.Completion || {};
+      default:
+        return this.familyData.Other || {};
+    }
   }
 
   // endings
 
-  end({
-    error,
-    message,
-  }: {
+  end(data: {
     error?: Error;
-    message?: string;
-  } = {}) {
-    this.message = message || "";
-
+    details?: FamilyData;
+  }) {
     if (!this.endedAt) {
       this.setEndedAt(new Date());
-    }
-
-    if (error) {
-      this.severity = "error";
     }
   }
 
