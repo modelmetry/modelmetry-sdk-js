@@ -1,7 +1,7 @@
 import type { Client } from "openapi-fetch";
-import type { paths, schemas } from "../openapi";
+import type { paths } from "../openapi";
 import { Trace } from "../signals/trace";
-import { buildIngestBatchFromTraces } from "./utils";
+import { buildIngestBatchFromTraces, calculateKilobyteSize } from "./utils";
 import { APIError } from "../utils/problems";
 
 type ObservabilityClientOptions = {
@@ -10,17 +10,32 @@ type ObservabilityClientOptions = {
 };
 
 export class ObservabilityClient {
+  private MAX_SIZE_KB = 5
+  private MAX_BATCH_LEN = 5;
+
   private tenantId: string;
   private client: Client<paths>;
   private traces: Trace[] = [];
 
   // in-transit
-  private inTransit: Trace[] = [];
-  private isFlushing = false;
+  private flights: Record<string, Promise<unknown>> = {}
+  private inTransit: Record<string, Trace> = {};
 
   constructor(options: ObservabilityClientOptions) {
     this.tenantId = options.tenantId;
     this.client = options.client;
+  }
+
+  getTenantId() {
+    return this.tenantId;
+  }
+
+  getTraces() {
+    return this.traces;
+  }
+
+  getInTransit() {
+    return this.inTransit;
   }
 
   newTrace(name: string): Trace {
@@ -33,47 +48,73 @@ export class ObservabilityClient {
     return trace;
   }
 
-  async flushAll(): Promise<void> {
-    if (this.isFlushing) {
-      console.log("A flush is already in progress");
-      return;
-    }
+  getQueuedTraces(): Trace[] {
+    const queued = this.traces.filter((t) => t.hasEnded() && !this.inTransit[t.getXid()]);
+    return queued;
+  }
 
-    this.isFlushing = true;
+  markAsTransiting(traces: Trace[]): void {
+    for (const trace of traces) {
+      this.inTransit[trace.getXid()] = trace;
+    }
+  }
+
+  unmarkAsTransiting(traces: Trace[]): void {
+    for (const trace of traces) {
+      delete this.inTransit[trace.getXid()];
+    }
+  }
+
+  async flushBatch(traces: Trace[]): Promise<void> {
+    const batchId = Math.random().toString(36).substring(7);
 
     // a. select the traces that have ended to transit
     // b. and remove them from the list of traces to be flushed
     // c. add them to the in-transit list
-    const tracesToTransit = this.traces.filter((t) => t.hasEnded());
+    const tracesToTransit = traces.filter((t) => {
+      // if the trace has not ended, bail early
+      if (!t.hasEnded()) return false;
+
+      // if the trace is already in transit, bail early
+      if (this.inTransit[t.getXid()]) return false;
+
+      // ok
+      return true;
+    });
+
+    // mark them as in transit
+    this.markAsTransiting(tracesToTransit);
+
+    // remove the traces to transit from the list of traces to be flushed
     const idsOfTracesToTransit = tracesToTransit.map((t) => t.getXid());
     this.traces = this.traces.filter((t) => !idsOfTracesToTransit.includes(t.getXid()));
-    this.inTransit.push(...tracesToTransit);
 
     // bail early if there's nothing to flush
-    if (this.inTransit.length === 0) {
-      this.isFlushing = false;
+    if (tracesToTransit.length === 0) {
+      console.info("No traces to flush");
       return;
     }
 
     try {
 
       // build the batch
-      const batch = buildIngestBatchFromTraces(this.inTransit);
+      const batch = buildIngestBatchFromTraces(tracesToTransit);
+
+      // store the promise
+      const flight = this.client.POST("/signals/ingest/v1", { body: { ...batch } });
+      this.flights[batchId] = flight;
+      flight.finally(() => { delete this.flights[batchId] });
 
       // send the batch
-      const { error } = await this.client.POST("/signals/ingest/v1", { body: { ...batch } });
+      const { error } = await flight;
 
       // handle errors
       if (error) throw new APIError(error);
 
-      // clear the traces in transit as they have been successfully flushed
-      this.inTransit = [];
-
     } catch (error) {
 
       // restore the traces that failed to flush
-      this.traces.push(...this.inTransit);
-      this.inTransit = [];
+      this.traces.push(...tracesToTransit);
 
       // handle errors
       if (error instanceof APIError) {
@@ -85,9 +126,47 @@ export class ObservabilityClient {
       console.error("Failed to flush traces (unknown)", error);
 
     } finally {
-      this.isFlushing = false;
+      // mark them as not in transit
+      this.unmarkAsTransiting(tracesToTransit);
     }
 
     return;
+  }
+
+  async flushIfConditionsFulfilled(): Promise<void> {
+    const queue = this.getQueuedTraces();
+    if (queue.length > this.MAX_BATCH_LEN) {
+      return this.flushBatch(queue);
+    }
+
+    const size = calculateKilobyteSize(queue);
+    if (size > this.MAX_SIZE_KB) {
+      return this.flushBatch(queue);
+    }
+
+    return;
+  }
+
+  async flushAll(): Promise<void> {
+    return this.flushBatch(this.traces);
+  }
+
+  async shutdown(): Promise<void> {
+    try {
+      // flush all traces
+      await this.flushAll();
+
+      // if there are no more flights, bail early
+      if (Object.values(this.flights).length === 0) return;
+
+      // wait for all flights to land
+      await Promise.all(Object.values(this.flights).map((x) => x.catch(() => { })));
+
+      // flush one more time in case some traces were added during the wait
+      await this.flushAll();
+
+    } catch (error) {
+      console.error("Error whilst shutting down the observability client", error);
+    }
   }
 }
