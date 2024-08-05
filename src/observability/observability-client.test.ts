@@ -1,10 +1,8 @@
-import type { Client } from "openapi-fetch";
-import { describe, expect, test, vi } from "vitest";
-import type { paths } from "../openapi";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { Trace } from "../signals";
 import { makeMockClient } from "../test/fixtures";
-import { ObservabilityClient } from "./observability-client";
 import { asyncSleep } from "../utils/dates";
+import { ObservabilityClient } from "./observability-client";
 
 describe("constructor", () => {
   test("should set the tenantId and client properties correctly", () => {
@@ -59,6 +57,66 @@ test("markAsTransiting and unmarkAsTransiting", () => {
   client.unmarkAsTransiting([trace1, trace2]);
 
   expect(client.getInTransit()).toEqual({});
+});
+
+describe("timer", () => {
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test("should execute flushIfConditionsFulfilled method after the specified interval", async () => {
+
+    const client = new ObservabilityClient({
+      tenantId: "ten_test",
+      client: makeMockClient(),
+      intervalMs: 500, // 1 seconds
+    });
+
+    const flushIfConditionsFulfilledSpy = vi.spyOn(client, "flushIfConditionsFulfilled")
+
+    // Advance the timer by 1 seconds
+    vi.advanceTimersByTime(500);
+    expect(flushIfConditionsFulfilledSpy).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(500);
+    expect(flushIfConditionsFulfilledSpy).toHaveBeenCalledTimes(2);
+
+    vi.advanceTimersByTime(500);
+    expect(flushIfConditionsFulfilledSpy).toHaveBeenCalledTimes(3);
+
+    client.newTrace("trace2").end();
+    client.newTrace("trace3").end();
+
+    // Advance the timer (should trigger the callback twice)
+    vi.advanceTimersByTime(1001);
+
+    // Ensure that flushIfConditionsFulfilled method has been called again
+    expect(flushIfConditionsFulfilledSpy).toHaveBeenCalledTimes(5);
+  });
+
+  test("stopTimer should stop the timer", () => {
+    const client = new ObservabilityClient({
+      tenantId: "ten_test",
+      client: makeMockClient(),
+      intervalMs: 500, // 1 seconds
+    });
+
+    const flushIfConditionsFulfilledSpy = vi.spyOn(client, "flushIfConditionsFulfilled")
+
+    // Advance the timer by 1 seconds
+    vi.advanceTimersByTime(500);
+    expect(flushIfConditionsFulfilledSpy).toHaveBeenCalledTimes(1);
+
+    client.stopTimer();
+
+    vi.advanceTimersByTime(1000);
+    expect(flushIfConditionsFulfilledSpy).toHaveBeenCalledTimes(1);
+  })
 });
 
 test("two consecutive flushes without any trace added in between should only fetch once", async () => {

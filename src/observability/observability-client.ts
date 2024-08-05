@@ -7,12 +7,20 @@ import { APIError } from "../utils/problems";
 type ObservabilityClientOptions = {
   tenantId: string;
   client: Client<paths>;
+
+  //
+  maxBatchLen?: number;
+  maxSizeKb?: number;
+  intervalMs?: number;
 };
 
 export class ObservabilityClient {
   private MAX_SIZE_KB = 5
   private MAX_BATCH_LEN = 5;
+  private INTERVAL_MS = 1000;
+  public timeout: NodeJS.Timeout | null = null;
 
+  //
   private tenantId: string;
   private client: Client<paths>;
   private traces: Trace[] = [];
@@ -24,6 +32,11 @@ export class ObservabilityClient {
   constructor(options: ObservabilityClientOptions) {
     this.tenantId = options.tenantId;
     this.client = options.client;
+
+    if (options.intervalMs) {
+      this.INTERVAL_MS = options.intervalMs;
+      this.startTimer();
+    }
   }
 
   getTenantId() {
@@ -168,5 +181,31 @@ export class ObservabilityClient {
     } catch (error) {
       console.error("Error whilst shutting down the observability client", error);
     }
+  }
+
+  async handleTimerExecution() {
+    if (!this.timeout) return
+
+    // clear the timeout
+    this.stopTimer();
+
+    // flush the traces
+    this.flushIfConditionsFulfilled();
+
+    // set the timeout again
+    this.startTimer();
+  }
+
+  stopTimer() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null
+    }
+  }
+
+  startTimer() {
+    if (this.timeout) return
+    if (this.INTERVAL_MS <= 0) return
+    this.timeout = setTimeout(async () => await this.handleTimerExecution(), this.INTERVAL_MS);
   }
 }
