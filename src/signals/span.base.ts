@@ -1,44 +1,21 @@
 import {
-  CompletionSpan,
+  type CompletionSpan,
   type CompletionSpanArgs,
-  createSpan,
-  EmbeddingsSpan,
+  type EmbeddingsSpan,
   type EmbeddingsSpanArgs,
-  OtherSpan,
+  type OtherSpan,
   type OtherSpanArgs,
-  RetrievalSpan,
+  type RetrievalSpan,
   type RetrievalSpanArgs,
   type Span,
+  type SpanTypeMap,
+  createSpan,
   startSpan,
 } from ".";
-import type { EmbeddingsPayload, FamilyData, schemas } from "../openapi";
+import type { FamilyData, schemas } from "../openapi";
 import { getDateMax } from "../utils/dates";
 import { Event } from "./event";
 import { Finding } from "./finding";
-
-export const SpanLookup = {
-  completion: {
-    class: CompletionSpan,
-  },
-  embeddings: {
-    class: EmbeddingsSpan,
-  },
-  retrieval: {
-    class: RetrievalSpan,
-  },
-  other: {
-    class: OtherSpan,
-  },
-};
-
-export type LookupSpan = typeof SpanLookup;
-
-export type SpanTypeMap = {
-  completion: CompletionSpan;
-  embeddings: EmbeddingsSpan;
-  retrieval: RetrievalSpan;
-  other: OtherSpan;
-};
 
 export type BaseSpanArgs = {
   name: string;
@@ -322,7 +299,11 @@ export abstract class BaseSpan {
     kind: "embeddings",
     args: Partial<EmbeddingsSpanArgs>,
   ): EmbeddingsSpan;
-  span(name: string, kind: "retrieval", args: Partial<RetrievalSpanArgs>): RetrievalSpan;
+  span(
+    name: string,
+    kind: "retrieval",
+    args: Partial<RetrievalSpanArgs>,
+  ): RetrievalSpan;
   span(name: string, kind: "other", args: Partial<OtherSpanArgs>): OtherSpan;
   span(
     name: string,
@@ -353,4 +334,3 @@ export abstract class BaseSpan {
     return startSpan(this, name, kind, callback);
   }
 }
-

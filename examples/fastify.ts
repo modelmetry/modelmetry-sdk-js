@@ -2,10 +2,9 @@ import "dotenv/config";
 import Fastify from "fastify";
 import { env } from "node:process";
 import OpenAI from "openai";
-import type { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { newMessagesFromOpenai, newTextOutput } from "../src/openapi";
-import { ModelmetryClient } from "../src/sdk";
 import type { Span } from "../src/signals";
+import { ModelmetryClient } from "../src/sdk";
 import { asyncSleep } from "../src/utils/dates";
 
 // Instantiate the Modelmetry client
@@ -85,7 +84,7 @@ const generateJoke = async (topic: string, parentSpan: Span) => {
   // start the new span
   const span = parentSpan.span("generate-joke", "completion", {});
   const model = "gpt-4o-mini";
-  const messages: Array<ChatCompletionMessageParam> = [
+  const messages: Array<OpenAI.Chat.ChatCompletionMessageParam> = [
     {
       role: "system",
       content: "You are a witty stand-up comedian in a writing room.",

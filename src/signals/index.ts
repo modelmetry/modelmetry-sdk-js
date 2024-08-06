@@ -5,14 +5,14 @@ import { OtherSpan } from "./span.other";
 import { RetrievalSpan } from "./span.retrieval";
 
 export * from "./finding";
-export * from "./span.start";
 export * from "./trace";
 export * from "./event";
-export * from "./span.base";
 export * from "./span.completion";
 export * from "./span.embeddings";
 export * from "./span.retrieval";
 export * from "./span.other";
+export * from "./span.start";
+export * from "./span.base";
 
 export type IngestBatch = schemas["IngestSignalsV1RequestBody"];
 export type Span = RetrievalSpan | EmbeddingsSpan | CompletionSpan | OtherSpan;
@@ -24,4 +24,28 @@ export const isSpan = (span: unknown): span is Span => {
     span instanceof CompletionSpan ||
     span instanceof OtherSpan
   );
+};
+
+export const SpanLookup = {
+  completion: {
+    class: CompletionSpan,
+  },
+  embeddings: {
+    class: EmbeddingsSpan,
+  },
+  retrieval: {
+    class: RetrievalSpan,
+  },
+  other: {
+    class: OtherSpan,
+  },
+};
+
+export type LookupSpan = typeof SpanLookup;
+
+export type SpanTypeMap = {
+  completion: CompletionSpan;
+  embeddings: EmbeddingsSpan;
+  retrieval: RetrievalSpan;
+  other: OtherSpan;
 };
