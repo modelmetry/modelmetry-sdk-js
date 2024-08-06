@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Trace } from "../signals/trace";
+import { Trace } from "../signals";
 import { buildIngestBatchFromTraces, gatherAllFindingsRecursively } from "./utils";
 
 test("should gather all findings recursively", () => {
@@ -14,13 +14,13 @@ test("should gather all findings recursively", () => {
   const f3 = trace4.newFinding("Finding 3", "value");
   const f4 = trace3.newFinding("Finding 4", "value");
 
-  const t2_s1 = trace2.newSpan("t2.s1");
+  const t2_s1 = trace2.span("t2.s1", "other", {});
   const f5 = t2_s1.newFinding("Finding 5", 5);
 
-  const t3_s1 = trace3.newSpan("t3.s1");
+  const t3_s1 = trace3.span("t3.s1", "other", {});
   const f6 = t3_s1.newFinding("Finding 6", 6);
 
-  const t3_s1_s1 = t3_s1.newSpan("t3.s1.s1");
+  const t3_s1_s1 = t3_s1.span("t3.s1.s1", "other", {});
   const f7 = t3_s1_s1.newFinding("Finding 7", 7);
 
 
@@ -51,13 +51,13 @@ describe("should build ingest batch with nested spans and events", () => {
   const f3 = trace4.newFinding("Finding 3", "value");
   const f4 = trace3.newFinding("Finding 4", "value");
 
-  const t2_s1 = trace2.newSpan("t2.s1");
+  const t2_s1 = trace2.span("t2.s1", "other", {});
   const f5 = t2_s1.newFinding("Finding 5", 5);
 
-  const t3_s1 = trace3.newSpan("t3.s1");
+  const t3_s1 = trace3.span("t3.s1", "other", {});
   const f6 = t3_s1.newFinding("Finding 6", 6);
 
-  const t3_s1_s1 = t3_s1.newSpan("t3.s1.s1");
+  const t3_s1_s1 = t3_s1.span("t3.s1.s1", "other", {});
   const f7 = t3_s1_s1.newFinding("Finding 7", 7);
 
   const e1 = trace1.newEvent("Event 1");
