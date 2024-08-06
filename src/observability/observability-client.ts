@@ -158,6 +158,7 @@ export class ObservabilityClient {
       this.unmarkAsTransiting(tracesToTransit);
     }
 
+    console.log(`Flushed ${tracesToTransit.length} traces`);
     return;
   }
 

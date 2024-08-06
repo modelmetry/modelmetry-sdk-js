@@ -119,6 +119,7 @@ describe("timer", () => {
   })
 });
 
+// TODO: fix the test when ran via CLI in suite mode; the flushBatch's "const { error } = await flight;" hangs
 test("two consecutive flushes without any trace added in between should only fetch once", async () => {
 
   const mockFetch = vi.fn(async (data: unknown) => {
@@ -159,19 +160,21 @@ test("two consecutive flushes without any trace added in between should only fet
 
   expect(mockFetch).toHaveBeenCalledTimes(1);
 
+  await client.shutdown();
+
 });
 
+// TODO: fix the test when ran via CLI in suite mode; the flushBatch's "const { error } = await flight;" hangs
 test("two consecutive flushes with an added trace in between should fetch twice", async () => {
-
-  const mockFetch = vi.fn(async (data: unknown) => {
-    await asyncSleep(100);
-    return new Response(JSON.stringify({}), { status: 200 });
-  });
+  const mockFetch = vi.fn();
 
   const client = new ObservabilityClient({
     tenantId: "ten_test",
     client: makeMockClient(undefined, {
-      fetch: mockFetch,
+      fetch: mockFetch.mockImplementation(async (data: unknown) => {
+        await asyncSleep(100);
+        return new Response(JSON.stringify({}), { status: 200 });
+      }),
     }),
   });
 
@@ -201,5 +204,7 @@ test("two consecutive flushes with an added trace in between should fetch twice"
   await flush2;
 
   expect(mockFetch).toHaveBeenCalledTimes(2);
+
+  await client.shutdown();
 
 });
