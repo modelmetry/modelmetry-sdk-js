@@ -39,7 +39,7 @@ const fastify = Fastify({
 
 fastify.get("/joke", async function handler(request, reply) {
   const trace = modelmetry.observability().newTrace("get-joke");
-  const rootSpan = trace.newSpan("root");
+  const rootSpan = trace.span("root", "other", {});
 
   try {
     const randomTopic = await selectRandomTopic(rootSpan);
@@ -57,32 +57,33 @@ fastify.get("/joke", async function handler(request, reply) {
 });
 
 const loadTopics = async (parentSpan: Span) => {
-  const span = parentSpan.newSpan("load-topics");
-  const topics = ["artificial intelligence", "typescript", "statistics"];
-  await asyncSleep(Math.floor(Math.random() * 87) + 12);
-  span.end();
-  return topics;
+  return parentSpan.startSpan("load-topics", "retrieval", async (span) => {
+    const topics = ["artificial intelligence", "typescript", "statistics"];
+    await asyncSleep(Math.floor(Math.random() * 87) + 12);
+    return topics;
+  })
 };
 
 const randomTopic = async (topics: string[], parentSpan: Span) => {
-  const span = parentSpan.newSpan("random-selection");
-  const selected = topics[Math.floor(Math.random() * topics.length)];
-  await asyncSleep(Math.floor(Math.random() * 87) + 12);
-  span.end();
-  return selected;
+  return parentSpan.startSpan("random-selection", "other", async (span) => {
+    span.setAttribute("email", "someone@example.com");
+    await asyncSleep(Math.floor(Math.random() * 87) + 12);
+    return topics[Math.floor(Math.random() * topics.length)];
+  })
 };
 
 const selectRandomTopic = async (parentSpan: Span) => {
-  const span = parentSpan.newSpan("pick-topic");
-  const topics = await loadTopics(span);
-  const selected = await randomTopic(topics, span);
-  span.end();
-  return selected;
+  return parentSpan.startSpan("pick-topic", "other", async (span) => {
+    const topics = await loadTopics(span);
+    const selected = await randomTopic(topics, span);
+    span.end();
+    return selected;
+  });
 };
 
 const generateJoke = async (topic: string, parentSpan: Span) => {
   // start the new span
-  const span = parentSpan.newCompletionSpan("generate-joke");
+  const span = parentSpan.span("generate-joke", "completion", {});
   const model = "gpt-4o-mini";
   const messages: Array<ChatCompletionMessageParam> = [
     {

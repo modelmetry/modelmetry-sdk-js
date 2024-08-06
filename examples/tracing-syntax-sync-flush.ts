@@ -17,27 +17,27 @@ export const example = async () => {
   const obs = modelmetry.observability();
   const trace = obs.newTrace("root");
 
-  const span1 = trace.newSpan("root.span1");
+  const span1 = trace.span("root.span1", "other", {});
   span1.newEvent("something happened in span1");
 
   await asyncSleep(50);
 
-  const span1_1 = span1.newEmbeddingsSpan("root.span1.1");
+  const span1_1 = span1.span("root.span1.1", "embeddings", {});
   await asyncSleep(50);
 
   span1_1.end([[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14]]);
   span1.end();
 
-  const span2 = trace.newSpan("root.span2");
+  const span2 = trace.span("root.span2", "other", {});
   span2.newEvent("something happened in span2");
   span2.newEvent("something happened again in span2");
   await asyncSleep(50);
 
-  const span2_1 = span2.newSpan("root.span2.1");
+  const span2_1 = span2.span("root.span2.1", "other", {});
   span2_1.newEvent("something happened in span2.1");
   await asyncSleep(50);
 
-  const span2_2 = span2.newCompletionSpan("root.span2.2");
+  const span2_2 = span2.span("root.span2.2", "completion", {});
   span2_2.newEvent("something happened in span2.2");
   span2_2.newEvent("something happened again in span2.2");
   await asyncSleep(50);

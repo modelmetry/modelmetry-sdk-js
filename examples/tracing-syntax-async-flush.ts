@@ -30,7 +30,7 @@ export const example = async () => {
     const trace = obs.newTrace("example")
     // loop to generate some spans, between 1 and 5
     for (let j = 0; j < Math.floor(Math.random() * 5) + 1; j++) {
-      const span = trace.newSpan("example-span");
+      const span = trace.span("example-span", "other", {});
       await asyncSleep(15);
       span.end();
     }
