@@ -1,3 +1,4 @@
+import { startSpan, type SpanTypeMap } from ".";
 import type { CompletionPayload, EmbeddingsPayload } from "../openapi";
 import { BaseSpan, type DerivedBaseSpanArgs } from "./span.base";
 import { EmbeddingsSpan } from "./span.embeddings";
@@ -62,50 +63,57 @@ export class CompletionSpan extends BaseSpan {
     return this;
   }
 
+  // newSpan(name: string): OtherSpan {
+  //   const span = new OtherSpan({
+  //     name,
+  //     traceId: this.traceId,
+  //     parentId: this.xid,
+  //   });
+  //   this.spans.push(span);
+  //   return span;
+  // }
 
-  newSpan(name: string): OtherSpan {
-    const span = new OtherSpan({
-      name,
-      traceId: this.traceId,
-      parentId: this.xid,
-    });
-    this.spans.push(span);
-    return span;
-  }
+  // newEmbeddingsSpan(
+  //   name: string,
+  //   inputs?: EmbeddingsPayload["Inputs"],
+  //   options?: EmbeddingsPayload["Options"],
+  // ): EmbeddingsSpan {
+  //   const span = new EmbeddingsSpan({
+  //     name,
+  //     traceId: this.traceId,
+  //     parentId: this.xid,
+  //     options,
+  //     inputs,
+  //   });
+  //   this.spans.push(span);
+  //   return span;
+  // }
 
-  newEmbeddingsSpan(
-    name: string,
-    inputs?: EmbeddingsPayload["Inputs"],
-    options?: EmbeddingsPayload["Options"],
-  ): EmbeddingsSpan {
-    const span = new EmbeddingsSpan({
-      name,
-      traceId: this.traceId,
-      parentId: this.xid,
-      options,
-      inputs,
-    });
-    this.spans.push(span);
-    return span;
-  }
+  // newRetrievalSpan(name: string): RetrievalSpan {
+  //   const span = new RetrievalSpan({
+  //     name,
+  //     traceId: this.traceId,
+  //     parentId: this.xid,
+  //   });
+  //   this.spans.push(span);
+  //   return span;
+  // }
 
-  newRetrievalSpan(name: string): RetrievalSpan {
-    const span = new RetrievalSpan({
-      name,
-      traceId: this.traceId,
-      parentId: this.xid,
-    });
-    this.spans.push(span);
-    return span;
-  }
+  // newCompletionSpan(name: string): CompletionSpan {
+  //   const span = new CompletionSpan({
+  //     name,
+  //     traceId: this.traceId,
+  //     parentId: this.xid,
+  //   });
+  //   this.spans.push(span);
+  //   return span;
+  // }
 
-  newCompletionSpan(name: string): CompletionSpan {
-    const span = new CompletionSpan({
-      name,
-      traceId: this.traceId,
-      parentId: this.xid,
-    });
-    this.spans.push(span);
-    return span;
-  }
+  // async startSpan<O, SpanKind extends keyof SpanTypeMap>(
+  //   name: string,
+  //   kind: SpanKind,
+  //   callback: (span: SpanTypeMap[SpanKind]) => Promise<O>,
+  // ) {
+  //   return startSpan(this, name, kind, callback);
+  // }
 }

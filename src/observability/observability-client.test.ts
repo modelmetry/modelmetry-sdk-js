@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { Trace } from "../signals";
+import { CompletionSpan, EmbeddingsSpan, OtherSpan, RetrievalSpan, Trace } from "../signals";
 import { makeMockClient } from "../test/fixtures";
 import { asyncSleep } from "../utils/dates";
 import { ObservabilityClient } from "./observability-client";
+import { Embeddings } from "openai/resources";
 
 describe("constructor", () => {
   test("should set the tenantId and client properties correctly", () => {
@@ -33,7 +34,10 @@ describe("newTrace", () => {
 });
 
 test("markAsTransiting and unmarkAsTransiting", () => {
-  const client = new ObservabilityClient({ tenantId: "ten_test", client: makeMockClient() });
+  const client = new ObservabilityClient({
+    tenantId: "ten_test",
+    client: makeMockClient(),
+  });
   const trace1 = client.newTrace("trace1");
   const trace2 = client.newTrace("trace2");
 
@@ -60,24 +64,25 @@ test("markAsTransiting and unmarkAsTransiting", () => {
 });
 
 describe("timer", () => {
-
   beforeEach(() => {
-    vi.useFakeTimers()
-  })
+    vi.useFakeTimers();
+  });
 
   afterEach(() => {
-    vi.restoreAllMocks()
-  })
+    vi.restoreAllMocks();
+  });
 
   test("should execute flushIfConditionsFulfilled method after the specified interval", async () => {
-
     const client = new ObservabilityClient({
       tenantId: "ten_test",
       client: makeMockClient(),
       intervalMs: 500, // 1 seconds
     });
 
-    const flushIfConditionsFulfilledSpy = vi.spyOn(client, "flushIfConditionsFulfilled")
+    const flushIfConditionsFulfilledSpy = vi.spyOn(
+      client,
+      "flushIfConditionsFulfilled",
+    );
 
     // Advance the timer by 1 seconds
     vi.advanceTimersByTime(500);
@@ -106,7 +111,10 @@ describe("timer", () => {
       intervalMs: 500, // 1 seconds
     });
 
-    const flushIfConditionsFulfilledSpy = vi.spyOn(client, "flushIfConditionsFulfilled")
+    const flushIfConditionsFulfilledSpy = vi.spyOn(
+      client,
+      "flushIfConditionsFulfilled",
+    );
 
     // Advance the timer by 1 seconds
     vi.advanceTimersByTime(500);
@@ -116,12 +124,11 @@ describe("timer", () => {
 
     vi.advanceTimersByTime(1000);
     expect(flushIfConditionsFulfilledSpy).toHaveBeenCalledTimes(1);
-  })
+  });
 });
 
 // TODO: fix the test when ran via CLI in suite mode; the flushBatch's "const { error } = await flight;" hangs
 test("two consecutive flushes without any trace added in between should only fetch once", async () => {
-
   const mockFetch = vi.fn(async (data: unknown) => {
     await asyncSleep(100);
     return new Response(JSON.stringify({}), { status: 200 });
@@ -161,7 +168,6 @@ test("two consecutive flushes without any trace added in between should only fet
   expect(mockFetch).toHaveBeenCalledTimes(1);
 
   await client.shutdown();
-
 });
 
 // TODO: fix the test when ran via CLI in suite mode; the flushBatch's "const { error } = await flight;" hangs
@@ -206,5 +212,4 @@ test("two consecutive flushes with an added trace in between should fetch twice"
   expect(mockFetch).toHaveBeenCalledTimes(2);
 
   await client.shutdown();
-
 });

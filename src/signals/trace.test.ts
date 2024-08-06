@@ -1,5 +1,5 @@
-import { describe, test } from "vitest";
-import { Trace } from "./trace";
+import { describe, expect, test } from "vitest";
+import { Trace, CompletionSpan, EmbeddingsSpan, RetrievalSpan, OtherSpan } from ".";
 
 test("instantiates a trace", ({ expect }) => {
   const trace = new Trace({ name: "test", tenantId: "ten_test" });
@@ -10,13 +10,13 @@ test("instantiates a trace", ({ expect }) => {
 
 test("created span should be present in trace", ({ expect }) => {
   const trace = new Trace({ name: "test", tenantId: "ten_test" });
-  const span = trace.newSpan("database call");
+  const span = trace.span("database call", "other", {});
   expect(trace.getChildrenSpans()).toContain(span);
 })
 
 test("creates a span", ({ expect }) => {
   const trace = new Trace({ name: "test", tenantId: "ten_test" });
-  const span = trace.newSpan("database call");
+  const span = trace.span("database call", "other", {});
   expect(span).toBeDefined();
   expect(span.getName()).toBe("database call");
   expect(span.getTraceId()).toBe(trace.getXid());
@@ -27,25 +27,25 @@ describe("creates a span with family", () => {
 
   test("embeddings", ({ expect }) => {
     const trace = new Trace({ name: "test", tenantId: "ten_test" });
-    const span = trace.newEmbeddingsSpan("embeddings call");
+    const span = trace.span("embeddings call", "embeddings", {});
     expect(span.getFamily()).toBe("embeddings");
   })
 
   test("retrieval", ({ expect }) => {
     const trace = new Trace({ name: "test", tenantId: "ten_test" });
-    const span = trace.newRetrievalSpan("retrieval call");
+    const span = trace.span("retrieval call", "retrieval", {});
     expect(span.getFamily()).toBe("retrieval");
   })
 
   test("completion", ({ expect }) => {
     const trace = new Trace({ name: "test", tenantId: "ten_test" });
-    const span = trace.newCompletionSpan("completion call");
+    const span = trace.span("completion call", "completion", {});
     expect(span.getFamily()).toBe("completion");
   })
 
   test("unset", ({ expect }) => {
     const trace = new Trace({ name: "test", tenantId: "ten_test" });
-    const span = trace.newSpan("unset call");
+    const span = trace.span("unset call", "other", {});
     expect(span.getFamily()).toBe("unset");
   })
 
@@ -53,11 +53,11 @@ describe("creates a span with family", () => {
 
 test("returns all descendant spans", ({ expect }) => {
   const trace = new Trace({ name: "test", tenantId: "ten_test" });
-  const span1 = trace.newSpan("span1");
-  const span2 = trace.newSpan("span2");
-  const span3 = span1.newSpan("span3");
-  const span4 = span1.newSpan("span4");
-  const span5 = span2.newSpan("span5");
+  const span1 = trace.span("span1", "other", {});
+  const span2 = trace.span("span2", "other", {});
+  const span3 = span1.span("span3", "other", {});
+  const span4 = span1.span("span4", "other", {});
+  const span5 = span2.span("span5", "other", {});
 
   const descendantSpans = trace.getDescendantSpans();
 
@@ -78,10 +78,85 @@ test("sets endedAt automatically when there are no child spans", ({ expect }) =>
 
 test("sets endedAt automatically when there are child spans", ({ expect }) => {
   const trace = new Trace({ name: "test", tenantId: "ten_test" });
-  const span1 = trace.newSpan("span1");
-  const span2 = trace.newSpan("span2");
+  const span1 = trace.span("span1", "other", {});
+  const span2 = trace.span("span2", "other", {});
   span1.setEndedAt(new Date("2022-01-01T00:00:00Z"));
   span2.setEndedAt(new Date("2022-01-02T00:00:00Z"));
   trace.setEndedAtAutomatically();
   expect(trace.getEndedAt()).toEqual(new Date("2022-01-02T00:00:00Z"));
 });
+
+describe("startSpan to return the callback's return value", async () => {
+
+  const trace = new Trace({ name: "test", tenantId: "ten_test" });
+
+  test("completion span", async () => {
+    // biome-ignore lint/suspicious/noExplicitAny: we are testing the return value of the callback
+    let s: any;
+    const output = await trace.startSpan(
+      "span1",
+      "completion",
+      async (span) => {
+        span.setAttribute("key", "value");
+        s = span;
+        return "the actual output";
+      },
+    );
+    expect(output).toBe("the actual output");
+    expect(s).toBeInstanceOf(CompletionSpan);
+    expect(s.getAttributes()).toEqual({ key: "value" });
+  });
+
+  test("embeddings span", async () => {
+    // biome-ignore lint/suspicious/noExplicitAny: we are testing the return value of the callback
+    let s: any;
+    const output = await trace.startSpan(
+      "span1",
+      "embeddings",
+      async (span) => {
+        span.setAttribute("key", "value");
+        s = span;
+        return "the actual output";
+      },
+    );
+    expect(output).toBe("the actual output");
+    expect(s).toBeInstanceOf(EmbeddingsSpan);
+    expect(s.getAttributes()).toEqual({ key: "value" });
+  });
+
+  test("retrieval span", async () => {
+    // biome-ignore lint/suspicious/noExplicitAny: we are testing the return value of the callback
+    let s: any;
+    const output = await trace.startSpan(
+      "span1",
+      "retrieval",
+      async (span) => {
+        span.setAttribute("key", "value");
+        s = span;
+        return "the actual output";
+      },
+    );
+    expect(output).toBe("the actual output");
+    expect(s).toBeInstanceOf(RetrievalSpan);
+    expect(s.getAttributes()).toEqual({ key: "value" });
+  });
+
+  test("other span", async () => {
+    // biome-ignore lint/suspicious/noExplicitAny: we are testing the return value of the callback
+    let s: any;
+    const output = await trace.startSpan(
+      "span1",
+      "other",
+      async (span) => {
+        span.setAttribute("key", "value");
+        s = span;
+        return "the actual output";
+      },
+    );
+    expect(output).toBe("the actual output");
+    expect(s).toBeInstanceOf(OtherSpan);
+    expect(s.getAttributes()).toEqual({ key: "value" });
+  });
+
+});
+

@@ -1,8 +1,44 @@
-import { CompletionSpan, EmbeddingsSpan, OtherSpan, RetrievalSpan, type Span } from ".";
+import {
+  CompletionSpan,
+  type CompletionSpanArgs,
+  createSpan,
+  EmbeddingsSpan,
+  type EmbeddingsSpanArgs,
+  OtherSpan,
+  type OtherSpanArgs,
+  RetrievalSpan,
+  type RetrievalSpanArgs,
+  type Span,
+  startSpan,
+} from ".";
 import type { EmbeddingsPayload, FamilyData, schemas } from "../openapi";
 import { getDateMax } from "../utils/dates";
 import { Event } from "./event";
 import { Finding } from "./finding";
+
+export const SpanLookup = {
+  completion: {
+    class: CompletionSpan,
+  },
+  embeddings: {
+    class: EmbeddingsSpan,
+  },
+  retrieval: {
+    class: RetrievalSpan,
+  },
+  other: {
+    class: OtherSpan,
+  },
+};
+
+export type LookupSpan = typeof SpanLookup;
+
+export type SpanTypeMap = {
+  completion: CompletionSpan;
+  embeddings: EmbeddingsSpan;
+  retrieval: RetrievalSpan;
+  other: OtherSpan;
+};
 
 export type BaseSpanArgs = {
   name: string;
@@ -52,6 +88,11 @@ export abstract class BaseSpan {
   }
 
   // findings
+
+  appendSpan(span: Span) {
+    this.spans.push(span);
+    return span;
+  }
 
   newFinding(
     name: Finding["name"],
@@ -105,11 +146,11 @@ export abstract class BaseSpan {
   }
 
   errored(error: Error) {
-    this.newEvent("errored")
-    this.setSeverity("error")
-    this.setMessage(error.message)
-    this.setAttribute("error", error.message)
-    this.setEndedAt(new Date())
+    this.newEvent("errored");
+    this.setSeverity("error");
+    this.setMessage(error.message);
+    this.setAttribute("error", error.message);
+    this.setEndedAt(new Date());
   }
 
   // children spans
@@ -215,6 +256,10 @@ export abstract class BaseSpan {
     return this.family;
   }
 
+  getFamilyData() {
+    return this.familyData;
+  }
+
   getSeverity() {
     return this.severity;
   }
@@ -262,4 +307,46 @@ export abstract class BaseSpan {
       Severity: this.severity,
     };
   }
+
+  span(
+    name: string,
+    kind: "completion",
+    args: Partial<CompletionSpanArgs>,
+  ): CompletionSpan;
+  span(
+    name: string,
+    kind: "embeddings",
+    args: Partial<EmbeddingsSpanArgs>,
+  ): EmbeddingsSpan;
+  span(name: string, kind: "retrieval", args: Partial<RetrievalSpanArgs>): RetrievalSpan;
+  span(name: string, kind: "other", args: Partial<OtherSpanArgs>): OtherSpan;
+  span(
+    name: string,
+    kind: "completion" | "embeddings" | "retrieval" | "other",
+    args:
+      | Partial<CompletionSpanArgs>
+      | Partial<EmbeddingsSpanArgs>
+      | Partial<RetrievalSpanArgs>
+      | Partial<OtherSpanArgs>,
+  ): Span {
+    switch (kind) {
+      case "completion":
+        return createSpan(this, name, kind, args);
+      case "embeddings":
+        return createSpan(this, name, kind, args);
+      case "retrieval":
+        return createSpan(this, name, kind, args);
+      case "other":
+        return createSpan(this, name, kind, args);
+    }
+  }
+
+  async startSpan<O, SpanKind extends keyof SpanTypeMap>(
+    name: string,
+    kind: SpanKind,
+    callback: (span: SpanTypeMap[SpanKind]) => Promise<O>,
+  ) {
+    return startSpan(this, name, kind, callback);
+  }
 }
+
