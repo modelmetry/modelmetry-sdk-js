@@ -1,5 +1,5 @@
 import type { Client } from "openapi-fetch";
-import type { APIError, Call, paths, Payload } from "../openapi";
+import type { Call, paths, Payload } from "../openapi";
 
 type GuardrailsClientOptions = {
   tenantId: string;
