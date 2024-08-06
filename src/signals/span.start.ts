@@ -115,7 +115,7 @@ export async function startSpan<O, SpanKind extends keyof SpanTypeMap>(
   name: string,
   kind: SpanKind,
   callback: (span: SpanTypeMap[SpanKind]) => Promise<O>,
-) {
+): Promise<O> {
   switch (kind) {
     case "completion": {
       const span = createSpan(caller, name, kind, {});
@@ -141,5 +141,9 @@ export async function startSpan<O, SpanKind extends keyof SpanTypeMap>(
       span.setEndedAt(new Date());
       return output;
     }
+    default: {
+      throw new Error("Invalid span kind");
+    }
   }
+
 }
