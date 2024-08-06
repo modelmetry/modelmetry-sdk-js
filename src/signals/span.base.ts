@@ -180,9 +180,13 @@ export abstract class BaseSpan {
     return this;
   }
 
-  setAttribute(key: string, value: string) {
+  setAttribute(key: string, value: unknown) {
     this.attributes[key] = value;
     return this;
+  }
+
+  getAttribute(key: string) {
+    return this.attributes[key];
   }
 
   mergeAttributes(attributes: schemas["Span"]["Attributes"]) {
