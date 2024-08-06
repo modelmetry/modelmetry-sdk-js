@@ -119,27 +119,53 @@ export async function startSpan<O, SpanKind extends keyof SpanTypeMap>(
   switch (kind) {
     case "completion": {
       const span = createSpan(caller, name, kind, {});
-      const output = await callback(span as SpanTypeMap[SpanKind]);
-      span.setEndedAt(new Date());
-      return output;
+      try {
+        const output = await callback(span as SpanTypeMap[SpanKind]);
+        return output;
+      } catch (error) {
+        span.errored(error as Error);
+        throw error;
+      } finally {
+        span.setEndedAt(new Date());
+      }
     }
     case "embeddings": {
       const span = createSpan(caller, name, kind, {});
-      const output = await callback(span as SpanTypeMap[SpanKind]);
-      span.setEndedAt(new Date());
-      return output;
+      try {
+        const output = await callback(span as SpanTypeMap[SpanKind]);
+        return output;
+      } catch (error) {
+        span.errored(error as Error);
+        throw error;
+      } finally {
+        span.setEndedAt(new Date());
+      }
     }
     case "retrieval": {
       const span = createSpan(caller, name, kind, {});
-      const output = await callback(span as SpanTypeMap[SpanKind]);
-      span.setEndedAt(new Date());
-      return output;
+      try {
+        const output = await callback(span as SpanTypeMap[SpanKind]);
+        return output;
+      } catch (error) {
+        span.errored(error as Error);
+        throw error;
+      }
+      finally {
+        span.setEndedAt(new Date());
+      }
     }
     case "other": {
       const span = createSpan(caller, name, kind, {});
-      const output = await callback(span as SpanTypeMap[SpanKind]);
-      span.setEndedAt(new Date());
-      return output;
+      try {
+        const output = await callback(span as SpanTypeMap[SpanKind]);
+        return output;
+      } catch (error) {
+        span.errored(error as Error);
+        throw error;
+      }
+      finally {
+        span.setEndedAt(new Date());
+      }
     }
     default: {
       throw new Error("Invalid span kind");

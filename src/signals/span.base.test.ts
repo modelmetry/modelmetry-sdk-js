@@ -124,3 +124,10 @@ test("startSpan()", async () => {
   expect(s).toBeInstanceOf(CompletionSpan)
 
 })
+
+test("startSpan() throws", async () => {
+  const span = new CompletionSpan({ name: "root", traceId: "tra_a" })
+  expect(async () => span.startSpan("child", "completion", async () => {
+    throw new Error("error")
+  })).rejects.toThrow()
+})
