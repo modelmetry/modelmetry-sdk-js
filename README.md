@@ -12,30 +12,39 @@ To get started with the Modelmetry SDK, you first need to install it. You can do
 npm install @modelmetry/sdk
 ```
 
+### Examples
+
+We recommend you look at the `./examples` directory for actual examples.
+
 ### Quick Start
 
-Here's a quick example to show you how to instantiate the SDK client and perform a check using the Modelmetry API. 
+Here's a quick example to show you how to instantiate the SDK client and perform a check using the Modelmetry API.
+
+**Initialize the SDK**
 
 ```ts
 import { ModelmetryClient } from "../src/sdk"
 import 'dotenv/config'
 
+const modelmetry = new ModelmetryClient({
+  tenantId: process.env.TENANT_ID, // required
+  apikey: process.env.API_KEY, // required
+  baseUrl: HOST, // optional
+})
 
+```
+
+**Perform a guardrail check**
+
+```ts
 export const basicGuardrailExample = async () => {
 
-  // replace these values with your own
-  const TENANT_ID = "TENANT_ID"; // e.g., ten_acmelimited12
-  const API_KEY = "API_KEY"; // e.g. "aDMd92dfn...dm29fj2f92"
-
-  const modelmetry = new ModelmetryClient({
-    tenantId: TENANT_ID,
-    apikey: API_KEY,
-  })
-
+  const response = await openai.chat.completions.create({ max_tokens: 500, model, messages });
+  const responseText = jokeResponse.choices[0].message.content;
   const result = await modelmetry.guardrails().check("grd_jaohzgcbd5hbt1grwmvp", {
     Input: {
       Text: {
-        Text: "I mean this is clearly a good thing, right?",
+        Text: responseText,
       },
     },
   })
@@ -53,9 +62,40 @@ export const basicGuardrailExample = async () => {
 await basicGuardrailExample();
 ```
 
-### Examples
+**Use observability**
 
-We will add more examples in the `./examples` directory.
+```ts
+
+fastify.get("/joke", async function handler(request, reply) {
+  // create a new trace
+  const trace = modelmetry.observability().newTrace("get-joke");
+
+  try {
+    // child span for the first task
+    const spanTask1 = trace.newSpan("task-1");
+    const stuff = await runTheFirstTask();
+    spanTask1.end();
+
+    // child span for the second task, this time we pass the trace to the task and handle the new span creation inside that function
+    const secondStuff = await runTheSecondTask(stuff, trace);
+    
+    reply.send({ secondStuff });
+  } catch (err) {
+    reply
+      .status(500)
+      .send({ error: "Failed to fetch joke", message: err.message });
+  } finally {
+    trace.end();
+  }
+});
+
+function runTheSecondTask(stuff, trace) {
+  const span = trace.newSpan("task-2");
+  // do something
+  span.end();
+  return "second stuff";
+}
+```
 
 ### Authentication
 
