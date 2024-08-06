@@ -40,6 +40,11 @@ fastify.get("/joke", async function handler(request, reply) {
   const trace = modelmetry.observability().newTrace("get-joke");
   const rootSpan = trace.span("root", "other", {});
 
+  // when using startSpan, a failing operation will throw its original error
+  // and mark the span as errored (severity = `error`)
+  await operationThatWillFail(rootSpan);
+
+  // now let's look at more normal operations
   try {
     const randomTopic = await selectRandomTopic(rootSpan);
     const joke = await generateJoke(randomTopic, rootSpan);
@@ -54,6 +59,22 @@ fastify.get("/joke", async function handler(request, reply) {
     trace.end();
   }
 });
+
+const operationThatWillFail = async (parentSpan: Span) => {
+  return parentSpan.startSpan("operation-that-will-fail", "other", async (span) => {
+    await asyncSleep(Math.floor(Math.random() * 87 + 12));
+    throw new Error("This operation failed, as expected for this example.");
+  });
+}
+
+const selectRandomTopic = async (parentSpan: Span) => {
+  return parentSpan.startSpan("pick-topic", "other", async (span) => {
+    const topics = await loadTopics(span);
+    const selected = await randomTopic(topics, span);
+    span.end();
+    return selected;
+  });
+};
 
 const loadTopics = async (parentSpan: Span) => {
   return parentSpan.startSpan("load-topics", "retrieval", async (span) => {
@@ -71,17 +92,9 @@ const randomTopic = async (topics: string[], parentSpan: Span) => {
   })
 };
 
-const selectRandomTopic = async (parentSpan: Span) => {
-  return parentSpan.startSpan("pick-topic", "other", async (span) => {
-    const topics = await loadTopics(span);
-    const selected = await randomTopic(topics, span);
-    span.end();
-    return selected;
-  });
-};
-
 const generateJoke = async (topic: string, parentSpan: Span) => {
-  // start the new span
+  // start the new span manually (without startSpan()), 
+  // which means we need to handle failures and ending ourselves
   const span = parentSpan.span("generate-joke", "completion", {});
   const model = "gpt-4o-mini";
   const messages: Array<OpenAI.Chat.ChatCompletionMessageParam> = [

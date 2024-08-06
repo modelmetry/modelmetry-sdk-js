@@ -72,11 +72,12 @@ fastify.get("/joke", async function handler(request, reply) {
 
   try {
     // child span for the first task
-    const spanTask1 = trace.newSpan("task-1");
+    const spanTask1 = trace.span("task-1", "other", {});
     const stuff = await runTheFirstTask();
     spanTask1.end();
 
-    // child span for the second task, this time we pass the trace to the task and handle the new span creation inside that function
+    // child span for the second task, this time we pass the trace to the task
+    // so that it can create a child span itself
     const secondStuff = await runTheSecondTask(stuff, trace);
     
     reply.send({ secondStuff });
@@ -90,10 +91,14 @@ fastify.get("/joke", async function handler(request, reply) {
 });
 
 function runTheSecondTask(stuff, trace) {
-  const span = trace.newSpan("task-2");
-  // do something
-  span.end();
-  return "second stuff";
+  // this time, use a callback to create a child span's scope,
+  // and it will end automatically when the callback returns
+  return trace.startSpan("task-2", "other", async (span) => {
+    span.setAttribute("user", "user-123");
+    span.setAttribute("stuff", stuff);
+    // do something
+    return "second stuff";
+  });
 }
 ```
 
