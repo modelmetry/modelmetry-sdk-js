@@ -1,7 +1,7 @@
-import type { components } from "./schema";
+import type { components } from "./schema.d";
 
-export type * from "./schema";
-export type * from "./builders";
+export * from "./schema.d";
+export * from "./builders";
 
 // export common types
 export type schemas = components["schemas"];
