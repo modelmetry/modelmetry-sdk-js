@@ -109,6 +109,7 @@ export abstract class BaseSpan {
     this.setSeverity("error")
     this.setMessage(error.message)
     this.setAttribute("error", error.message)
+    this.setEndedAt(new Date())
   }
 
   // children spans

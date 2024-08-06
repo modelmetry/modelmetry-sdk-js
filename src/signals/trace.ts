@@ -1,5 +1,5 @@
 import type { Span } from ".";
-import type { schemas } from "../openapi";
+import type { CompletionPayload, schemas } from "../openapi";
 import { getDateMax } from "../utils/dates";
 import { Event } from "./event";
 import { Finding } from "./finding";
@@ -157,11 +157,18 @@ export class Trace {
     return span;
   }
 
-  newCompletionSpan(name: string): CompletionSpan {
+  newCompletionSpan(
+    name: string,
+    data?: Partial<CompletionPayload>,
+  ): CompletionSpan {
     const span = new CompletionSpan({
       name,
       traceId: this.xid,
     });
+    span.familyData = {
+      ...span.familyData,
+      ...data,
+    }
     this.spans.push(span);
     return span;
   }

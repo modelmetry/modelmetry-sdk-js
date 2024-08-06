@@ -44,11 +44,20 @@ export class CompletionSpan extends BaseSpan {
     return this;
   }
 
+  setInput(input: CompletionPayload["Input"]) {
+    this.familyData.Input = input;
+    return this;
+  }
+
+  setOutput(output: CompletionPayload["Output"]) {
+    this.familyData.Output = output;
+    return this;
+  }
+
   end(data: Partial<CompletionPayload>) {
     this.familyData.Model = data.Model || "";
     this.familyData.Input = data.Input || {};
     this.familyData.Output = data.Output || {};
-
     this.maybeSetEndedAtToNow();
     return this;
   }
