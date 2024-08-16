@@ -1,5 +1,34 @@
 components:
   schemas:
+    AssistantMessage:
+      additionalProperties: false
+      properties:
+        Contents:
+          items:
+            description: Represents a part of a completion message.
+            oneOf:
+              - $ref: "#/components/schemas/TextPart"
+              - $ref: "#/components/schemas/DataPart"
+            type: object
+          type:
+            - array
+            - "null"
+        Name:
+          type: string
+        Role:
+          enum:
+            - assistant
+          type: string
+        ToolCalls:
+          items:
+            $ref: "#/components/schemas/ToolCall"
+          type:
+            - array
+            - "null"
+      required:
+        - Role
+        - Contents
+      type: object
     Call:
       additionalProperties: false
       properties:
@@ -36,7 +65,9 @@ components:
         SummarisedEntries:
           items:
             $ref: "#/components/schemas/SummarisedEntry"
-          type: array
+          type:
+            - array
+            - "null"
         TenantID:
           type: string
         UpdatedAt:
@@ -84,54 +115,27 @@ components:
       properties:
         Messages:
           items:
-            $ref: "#/components/schemas/SimpleMessage"
-          type: array
-        Settings:
-          $ref: "#/components/schemas/SimpleOptions"
-      required:
-        - Settings
-      type: object
-    ChatOutput:
-      additionalProperties: false
-      properties:
-        Messages:
-          items:
-            $ref: "#/components/schemas/SimpleMessage"
-          type: array
-        Settings:
-          $ref: "#/components/schemas/SimpleOptions"
-      required:
-        - Settings
-      type: object
-    CompletionPayload:
-      additionalProperties: false
-      properties:
-        Context:
-          $ref: "#/components/schemas/CompletionPayloadContext"
-        Input:
-          $ref: "#/components/schemas/Input"
-        Model:
-          type: string
+            description: Represents a completion message.
+            discriminator:
+              mapping:
+                assistant: "#/components/schemas/AssistantMessage"
+                system: "#/components/schemas/SystemMessage"
+                tool: "#/components/schemas/ToolMessage"
+                user: "#/components/schemas/UserMessage"
+              propertyName: Role
+            oneOf:
+              - $ref: "#/components/schemas/SystemMessage"
+              - $ref: "#/components/schemas/UserMessage"
+              - $ref: "#/components/schemas/AssistantMessage"
+              - $ref: "#/components/schemas/ToolMessage"
+            type: object
+          type:
+            - array
+            - "null"
         Options:
-          $ref: "#/components/schemas/SimpleOptions"
-        Output:
-          $ref: "#/components/schemas/Output"
+          $ref: "#/components/schemas/Options"
       required:
-        - Model
         - Options
-      type: object
-    CompletionPayloadContext:
-      additionalProperties: false
-      properties:
-        ParsedSystem:
-          type: string
-        RetrievedItems:
-          items:
-            $ref: "#/components/schemas/RetrievedItem"
-          type: array
-      required:
-        - ParsedSystem
-        - RetrievedItems
       type: object
     CreateEventParams:
       additionalProperties: false
@@ -190,6 +194,11 @@ components:
         Name:
           type: string
         Source:
+          enum:
+            - annotation
+            - api
+            - enduser
+            - evaluator
           type:
             - string
             - "null"
@@ -300,18 +309,22 @@ components:
         - XID
         - Start
       type: object
-    EmbeddingsPayload:
+    DataPart:
       additionalProperties: false
       properties:
-        Inputs:
-          items:
-            type: string
-          type: array
-        Options:
-          $ref: "#/components/schemas/SimpleOptions"
+        Detail:
+          enum:
+            - auto
+            - low
+            - high
+          type: string
+        MimeType:
+          type: string
+        URI:
+          type: string
       required:
-        - Inputs
-        - Options
+        - MimeType
+        - URI
       type: object
     ErrorDetail:
       additionalProperties: false
@@ -344,7 +357,9 @@ components:
           description: Optional list of individual error details
           items:
             $ref: "#/components/schemas/ErrorDetail"
-          type: array
+          type:
+            - array
+            - "null"
         instance:
           description: A URI reference that identifies the specific occurrence of the problem.
           examples:
@@ -370,124 +385,6 @@ components:
           format: uri
           type: string
       type: object
-    Event:
-      additionalProperties: false
-      properties:
-        At:
-          format: date-time
-          type: string
-        Attributes:
-          additionalProperties: {}
-          type: object
-        CreatedAt:
-          format: date-time
-          type: string
-        EntryID:
-          type:
-            - string
-            - "null"
-        ID:
-          type: string
-        Name:
-          type: string
-        SpanID:
-          type:
-            - string
-            - "null"
-        TenantID:
-          type: string
-        TraceID:
-          type:
-            - string
-            - "null"
-        UpdatedAt:
-          format: date-time
-          type: string
-        XID:
-          type: string
-      required:
-        - ID
-        - XID
-        - TenantID
-        - Name
-        - Attributes
-        - At
-        - UpdatedAt
-        - CreatedAt
-        - TraceID
-        - SpanID
-        - EntryID
-      type: object
-    Finding:
-      additionalProperties: false
-      properties:
-        At:
-          format: date-time
-          type: string
-        Comment:
-          type: string
-        CreatedAt:
-          format: date-time
-          type: string
-        EntryID:
-          type:
-            - string
-            - "null"
-        EvaluatorID:
-          type:
-            - string
-            - "null"
-        ID:
-          type: string
-        Metadata:
-          additionalProperties: {}
-          type: object
-        Name:
-          type: string
-        Source:
-          enum:
-            - annotation
-            - api
-            - enduser
-            - evaluator
-          type: string
-        SpanID:
-          type:
-            - string
-            - "null"
-        TenantID:
-          type: string
-        TraceID:
-          type:
-            - string
-            - "null"
-        UpdatedAt:
-          format: date-time
-          type: string
-        Value:
-          oneOf:
-            - type: number
-            - type: boolean
-            - type: string
-        XID:
-          type: string
-      required:
-        - ID
-        - XID
-        - Name
-        - TenantID
-        - TraceID
-        - SpanID
-        - EntryID
-        - Value
-        - Source
-        - Comment
-        - Metadata
-        - EvaluatorID
-        - At
-        - UpdatedAt
-        - CreatedAt
-      type: object
     Function:
       additionalProperties: false
       properties:
@@ -511,145 +408,98 @@ components:
         Events:
           items:
             $ref: "#/components/schemas/CreateEventParams"
-          type: array
+          type:
+            - array
+            - "null"
         Findings:
           items:
             $ref: "#/components/schemas/CreateFindingParams"
-          type: array
+          type:
+            - array
+            - "null"
         Sessions:
           items:
             $ref: "#/components/schemas/CreateSessionParams"
-          type: array
+          type:
+            - array
+            - "null"
         Spans:
           items:
             $ref: "#/components/schemas/CreateSpanParams"
-          type: array
+          type:
+            - array
+            - "null"
         Traces:
           items:
             $ref: "#/components/schemas/CreateTraceParams"
-          type: array
+          type:
+            - array
+            - "null"
       type: object
-    Input:
+    IngestSignalsV1ResponseBody:
       additionalProperties: false
       properties:
-        Chat:
-          $ref: "#/components/schemas/ChatInput"
-        Text:
-          $ref: "#/components/schemas/TextInput"
-      type: object
-    OtherPayload:
-      additionalProperties: false
-      type: object
-    Output:
-      additionalProperties: false
-      properties:
-        Chat:
-          $ref: "#/components/schemas/ChatOutput"
-        Text:
-          $ref: "#/components/schemas/TextOutput"
-      type: object
-    Payload:
-      additionalProperties: false
-      properties:
-        Input:
-          $ref: "#/components/schemas/Input"
-        Output:
-          $ref: "#/components/schemas/Output"
-      type: object
-    RetrievalPayload:
-      additionalProperties: false
-      properties:
-        Queries:
-          items:
-            $ref: "#/components/schemas/RetrievalQuery"
-          type: array
-        Retrieved:
-          items:
-            $ref: "#/components/schemas/RetrievedItem"
-          type: array
-      required:
-        - Queries
-        - Retrieved
-      type: object
-    RetrievalQuery:
-      additionalProperties: false
-      properties:
-        Embeddings:
-          items:
-            format: float
-            type: number
-          type: array
-        Name:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/IngestSignalsV1ResponseBody.json
+          format: uri
+          readOnly: true
           type: string
-      required:
-        - Name
-        - Embeddings
       type: object
-    RetrievedItem:
+    Options:
       additionalProperties: false
       properties:
-        Content: {}
-        ContentType:
+        APIKey:
           type: string
-        Identifier:
+        APIVersion:
           type: string
-        Metadata:
-          additionalProperties: {}
-          type: object
-      required:
-        - Identifier
-        - ContentType
-        - Content
-        - Metadata
-      type: object
-    SimpleMessage:
-      additionalProperties: false
-      properties:
-        Contents:
-          items:
-            $ref: "#/components/schemas/SimplePart"
-          minItems: 1
-          type: array
-        Name:
+        BaseURL:
           type: string
-        Role:
-          enum:
-            - system
-            - user
-            - assistant
-            - tool
-            - function
+        DeploymentID:
           type: string
-        ToolCallID:
-          type: string
-        ToolCalls:
-          items:
-            $ref: "#/components/schemas/ToolCall"
-          type: array
-      required:
-        - Role
-        - Contents
-      type: object
-    SimpleOptions:
-      additionalProperties: false
-      properties:
         FrequencyPenalty:
           format: double
           type: number
+        FunctionCall:
+          type: string
+        Functions:
+          items:
+            type: string
+          type:
+            - array
+            - "null"
+        LogitBias:
+          additionalProperties: {}
+          type: object
         Logprobs:
           type: boolean
         MaxTokens:
           format: int64
           type: integer
+        Model:
+          type: string
+        ModelList:
+          items:
+            type: string
+          type:
+            - array
+            - "null"
         "N":
           format: int64
           type: integer
         PresencePenalty:
           format: double
           type: number
+        ResponseFormat:
+          additionalProperties: {}
+          type: object
         Seed:
           format: int64
           type: integer
+        Stop:
+          additionalProperties: {}
+          type: object
         Stream:
           type: boolean
         Temperature:
@@ -666,7 +516,9 @@ components:
         Tools:
           items:
             $ref: "#/components/schemas/Tool"
-          type: array
+          type:
+            - array
+            - "null"
         TopLogprobs:
           format: int64
           type: integer
@@ -678,23 +530,45 @@ components:
         User:
           type: string
       type: object
-    SimplePart:
+    Output:
       additionalProperties: false
       properties:
-        Detail:
-          enum:
-            - auto
-            - low
-            - high
-          type: string
-        MimeType:
-          type: string
+        Messages:
+          items:
+            description: Represents a completion message.
+            discriminator:
+              mapping:
+                assistant: "#/components/schemas/AssistantMessage"
+                system: "#/components/schemas/SystemMessage"
+                tool: "#/components/schemas/ToolMessage"
+                user: "#/components/schemas/UserMessage"
+              propertyName: Role
+            oneOf:
+              - $ref: "#/components/schemas/SystemMessage"
+              - $ref: "#/components/schemas/UserMessage"
+              - $ref: "#/components/schemas/AssistantMessage"
+              - $ref: "#/components/schemas/ToolMessage"
+            type: object
+          type:
+            - array
+            - "null"
         Text:
           type: string
-        URI:
-          type: string
       required:
+        - Messages
         - Text
+      type: object
+    Payload:
+      additionalProperties: false
+      properties:
+        Input:
+          description: Input for completion
+          oneOf:
+            - $ref: "#/components/schemas/TextInput"
+            - $ref: "#/components/schemas/ChatInput"
+          type: object
+        Output:
+          $ref: "#/components/schemas/Output"
       type: object
     SimplifiedFinding:
       additionalProperties: false
@@ -734,82 +608,6 @@ components:
         - EvaluatorID
         - At
       type: object
-    Span:
-      additionalProperties: false
-      properties:
-        Attributes:
-          additionalProperties: {}
-          type: object
-        Completion:
-          $ref: "#/components/schemas/CompletionPayload"
-        CreatedAt:
-          format: date-time
-          type: string
-        Embeddings:
-          $ref: "#/components/schemas/EmbeddingsPayload"
-        End:
-          format: date-time
-          type: string
-        Events:
-          items:
-            $ref: "#/components/schemas/Event"
-          type: array
-        Family:
-          type: string
-        Findings:
-          items:
-            $ref: "#/components/schemas/Finding"
-          type: array
-        ID:
-          type: string
-        Message:
-          type: string
-        Name:
-          type: string
-        Other:
-          $ref: "#/components/schemas/OtherPayload"
-        ParentID:
-          type:
-            - string
-            - "null"
-        Retrieval:
-          $ref: "#/components/schemas/RetrievalPayload"
-        Severity:
-          type: string
-        Start:
-          format: date-time
-          type: string
-        TenantID:
-          type: string
-        TraceID:
-          type: string
-        UpdatedAt:
-          format: date-time
-          type: string
-        XID:
-          type: string
-      required:
-        - ID
-        - XID
-        - TenantID
-        - TraceID
-        - ParentID
-        - Name
-        - Family
-        - Severity
-        - Message
-        - Start
-        - End
-        - Embeddings
-        - Retrieval
-        - Completion
-        - Other
-        - Attributes
-        - Events
-        - Findings
-        - UpdatedAt
-        - CreatedAt
-      type: object
     SummarisedEntry:
       additionalProperties: false
       properties:
@@ -821,7 +619,9 @@ components:
         Findings:
           items:
             $ref: "#/components/schemas/SimplifiedFinding"
-          type: array
+          type:
+            - array
+            - "null"
         ID:
           type: string
         InstanceID:
@@ -853,6 +653,29 @@ components:
         - Findings
         - DurationMs
       type: object
+    SystemMessage:
+      additionalProperties: false
+      properties:
+        Contents:
+          items:
+            description: Represents a part of a completion message.
+            oneOf:
+              - $ref: "#/components/schemas/TextPart"
+              - $ref: "#/components/schemas/DataPart"
+            type: object
+          type:
+            - array
+            - "null"
+        Name:
+          type: string
+        Role:
+          enum:
+            - system
+          type: string
+      required:
+        - Role
+        - Contents
+      type: object
     TextInput:
       additionalProperties: false
       properties:
@@ -861,7 +684,7 @@ components:
       required:
         - Text
       type: object
-    TextOutput:
+    TextPart:
       additionalProperties: false
       properties:
         Text:
@@ -898,59 +721,52 @@ components:
         - ID
         - Function
       type: object
-    TraceWithSpans:
+    ToolMessage:
       additionalProperties: false
       properties:
-        $schema:
-          description: A URL to the JSON Schema for this object.
-          examples:
-            - http://api.modelmetry.com//schemas/TraceWithSpans.json
-          format: uri
-          readOnly: true
-          type: string
-        Attributes:
-          additionalProperties: {}
-          type: object
-        CreatedAt:
-          format: date-time
-          type: string
-        End:
-          format: date-time
-          type: string
-        ID:
-          type: string
-        Name:
-          type: string
-        SessionID:
-          type:
-            - string
-            - "null"
-        Spans:
+        Contents:
           items:
-            $ref: "#/components/schemas/Span"
-          type: array
-        Start:
-          format: date-time
+            description: Represents a part of a completion message.
+            oneOf:
+              - $ref: "#/components/schemas/TextPart"
+              - $ref: "#/components/schemas/DataPart"
+            type: object
+          type:
+            - array
+            - "null"
+        Role:
+          enum:
+            - tool
           type: string
-        TenantID:
-          type: string
-        UpdatedAt:
-          format: date-time
-          type: string
-        XID:
+        ToolCallID:
           type: string
       required:
-        - Spans
-        - ID
-        - XID
-        - TenantID
-        - SessionID
-        - Name
-        - Start
-        - End
-        - Attributes
-        - UpdatedAt
-        - CreatedAt
+        - Contents
+        - Role
+        - ToolCallID
+      type: object
+    UserMessage:
+      additionalProperties: false
+      properties:
+        Contents:
+          items:
+            description: Represents a part of a completion message.
+            oneOf:
+              - $ref: "#/components/schemas/TextPart"
+              - $ref: "#/components/schemas/DataPart"
+            type: object
+          type:
+            - array
+            - "null"
+        Name:
+          type: string
+        Role:
+          enum:
+            - user
+          type: string
+      required:
+        - Contents
+        - Role
       type: object
   securitySchemes:
     apikeyAuth:
@@ -1007,7 +823,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TraceWithSpans"
+                $ref: "#/components/schemas/IngestSignalsV1ResponseBody"
           description: OK
         default:
           content:

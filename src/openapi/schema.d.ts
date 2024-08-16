@@ -42,6 +42,16 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AssistantMessage: {
+            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
+            Name?: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            Role: "assistant";
+            ToolCalls?: components["schemas"]["ToolCall"][] | null;
+        };
         Call: {
             /**
              * Format: uri
@@ -61,7 +71,7 @@ export interface components {
             /** @enum {string} */
             Outcome: "pass" | "fail" | "error";
             Payload: components["schemas"]["Payload"];
-            SummarisedEntries: components["schemas"]["SummarisedEntry"][];
+            SummarisedEntries: components["schemas"]["SummarisedEntry"][] | null;
             TenantID: string;
             /** Format: date-time */
             UpdatedAt: string;
@@ -78,23 +88,8 @@ export interface components {
             TenantID: string;
         };
         ChatInput: {
-            Messages?: components["schemas"]["SimpleMessage"][];
-            Settings: components["schemas"]["SimpleOptions"];
-        };
-        ChatOutput: {
-            Messages?: components["schemas"]["SimpleMessage"][];
-            Settings: components["schemas"]["SimpleOptions"];
-        };
-        CompletionPayload: {
-            Context?: components["schemas"]["CompletionPayloadContext"];
-            Input?: components["schemas"]["Input"];
-            Model: string;
-            Options: components["schemas"]["SimpleOptions"];
-            Output?: components["schemas"]["Output"];
-        };
-        CompletionPayloadContext: {
-            ParsedSystem: string;
-            RetrievedItems: components["schemas"]["RetrievedItem"][];
+            Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
+            Options: components["schemas"]["Options"];
         };
         CreateEventParams: {
             /** Format: date-time */
@@ -118,7 +113,8 @@ export interface components {
                 [key: string]: unknown;
             };
             Name: string;
-            Source?: string | null;
+            /** @enum {string|null} */
+            Source?: "annotation" | "api" | "enduser" | "evaluator" | null;
             SpanID?: string | null;
             TraceID?: string | null;
             Value: number | boolean | string;
@@ -160,9 +156,11 @@ export interface components {
             Start: string;
             XID: string;
         };
-        EmbeddingsPayload: {
-            Inputs: string[];
-            Options: components["schemas"]["SimpleOptions"];
+        DataPart: {
+            /** @enum {string} */
+            Detail?: "auto" | "low" | "high";
+            MimeType: string;
+            URI: string;
         };
         ErrorDetail: {
             /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
@@ -181,7 +179,7 @@ export interface components {
             /** @description A human-readable explanation specific to this occurrence of the problem. */
             detail?: string;
             /** @description Optional list of individual error details */
-            errors?: components["schemas"]["ErrorDetail"][];
+            errors?: components["schemas"]["ErrorDetail"][] | null;
             /**
              * Format: uri
              * @description A URI reference that identifies the specific occurrence of the problem.
@@ -201,47 +199,6 @@ export interface components {
              */
             type: string;
         };
-        Event: {
-            /** Format: date-time */
-            At: string;
-            Attributes: {
-                [key: string]: unknown;
-            };
-            /** Format: date-time */
-            CreatedAt: string;
-            EntryID: string | null;
-            ID: string;
-            Name: string;
-            SpanID: string | null;
-            TenantID: string;
-            TraceID: string | null;
-            /** Format: date-time */
-            UpdatedAt: string;
-            XID: string;
-        };
-        Finding: {
-            /** Format: date-time */
-            At: string;
-            Comment: string;
-            /** Format: date-time */
-            CreatedAt: string;
-            EntryID: string | null;
-            EvaluatorID: string | null;
-            ID: string;
-            Metadata: {
-                [key: string]: unknown;
-            };
-            Name: string;
-            /** @enum {string} */
-            Source: "annotation" | "api" | "enduser" | "evaluator";
-            SpanID: string | null;
-            TenantID: string;
-            TraceID: string | null;
-            /** Format: date-time */
-            UpdatedAt: string;
-            Value: number | boolean | string;
-            XID: string;
-        };
         Function: {
             Arguments: unknown;
             Name: string;
@@ -252,80 +209,69 @@ export interface components {
              * @description A URL to the JSON Schema for this object.
              */
             readonly $schema?: string;
-            Events?: components["schemas"]["CreateEventParams"][];
-            Findings?: components["schemas"]["CreateFindingParams"][];
-            Sessions?: components["schemas"]["CreateSessionParams"][];
-            Spans?: components["schemas"]["CreateSpanParams"][];
-            Traces?: components["schemas"]["CreateTraceParams"][];
+            Events?: components["schemas"]["CreateEventParams"][] | null;
+            Findings?: components["schemas"]["CreateFindingParams"][] | null;
+            Sessions?: components["schemas"]["CreateSessionParams"][] | null;
+            Spans?: components["schemas"]["CreateSpanParams"][] | null;
+            Traces?: components["schemas"]["CreateTraceParams"][] | null;
         };
-        Input: {
-            Chat?: components["schemas"]["ChatInput"];
-            Text?: components["schemas"]["TextInput"];
+        IngestSignalsV1ResponseBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             */
+            readonly $schema?: string;
         };
-        OtherPayload: Record<string, never>;
-        Output: {
-            Chat?: components["schemas"]["ChatOutput"];
-            Text?: components["schemas"]["TextOutput"];
-        };
-        Payload: {
-            Input?: components["schemas"]["Input"];
-            Output?: components["schemas"]["Output"];
-        };
-        RetrievalPayload: {
-            Queries: components["schemas"]["RetrievalQuery"][];
-            Retrieved: components["schemas"]["RetrievedItem"][];
-        };
-        RetrievalQuery: {
-            Embeddings: number[];
-            Name: string;
-        };
-        RetrievedItem: {
-            Content: unknown;
-            ContentType: string;
-            Identifier: string;
-            Metadata: {
-                [key: string]: unknown;
-            };
-        };
-        SimpleMessage: {
-            Contents: components["schemas"]["SimplePart"][];
-            Name?: string;
-            /** @enum {string} */
-            Role: "system" | "user" | "assistant" | "tool" | "function";
-            ToolCallID?: string;
-            ToolCalls?: components["schemas"]["ToolCall"][];
-        };
-        SimpleOptions: {
+        Options: {
+            APIKey?: string;
+            APIVersion?: string;
+            BaseURL?: string;
+            DeploymentID?: string;
             /** Format: double */
             FrequencyPenalty?: number;
+            FunctionCall?: string;
+            Functions?: string[] | null;
+            LogitBias?: {
+                [key: string]: unknown;
+            };
             Logprobs?: boolean;
             /** Format: int64 */
             MaxTokens?: number;
+            Model?: string;
+            ModelList?: string[] | null;
             /** Format: int64 */
             N?: number;
             /** Format: double */
             PresencePenalty?: number;
+            ResponseFormat?: {
+                [key: string]: unknown;
+            };
             /** Format: int64 */
             Seed?: number;
+            Stop?: {
+                [key: string]: unknown;
+            };
             Stream?: boolean;
             /** Format: double */
             Temperature?: number;
             /** Format: double */
             Timeout?: number;
             ToolChoice?: string;
-            Tools?: components["schemas"]["Tool"][];
+            Tools?: components["schemas"]["Tool"][] | null;
             /** Format: int64 */
             TopLogprobs?: number;
             /** Format: double */
             TopP?: number;
             User?: string;
         };
-        SimplePart: {
-            /** @enum {string} */
-            Detail?: "auto" | "low" | "high";
-            MimeType?: string;
+        Output: {
+            Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
             Text: string;
-            URI?: string;
+        };
+        Payload: {
+            /** @description Input for completion */
+            Input?: components["schemas"]["TextInput"] | components["schemas"]["ChatInput"];
+            Output?: components["schemas"]["Output"];
         };
         SimplifiedFinding: {
             /** Format: date-time */
@@ -340,39 +286,11 @@ export interface components {
             Source: "annotation" | "api" | "enduser" | "evaluator";
             Value: number | boolean | string;
         };
-        Span: {
-            Attributes: {
-                [key: string]: unknown;
-            };
-            Completion: components["schemas"]["CompletionPayload"];
-            /** Format: date-time */
-            CreatedAt: string;
-            Embeddings: components["schemas"]["EmbeddingsPayload"];
-            /** Format: date-time */
-            End: string;
-            Events: components["schemas"]["Event"][];
-            Family: string;
-            Findings: components["schemas"]["Finding"][];
-            ID: string;
-            Message: string;
-            Name: string;
-            Other: components["schemas"]["OtherPayload"];
-            ParentID: string | null;
-            Retrieval: components["schemas"]["RetrievalPayload"];
-            Severity: string;
-            /** Format: date-time */
-            Start: string;
-            TenantID: string;
-            TraceID: string;
-            /** Format: date-time */
-            UpdatedAt: string;
-            XID: string;
-        };
         SummarisedEntry: {
             /** Format: int64 */
             DurationMs: number;
             EvaluatorID: string;
-            Findings: components["schemas"]["SimplifiedFinding"][];
+            Findings: components["schemas"]["SimplifiedFinding"][] | null;
             ID: string;
             InstanceID: string | null;
             Message: string;
@@ -382,10 +300,19 @@ export interface components {
             Skip: string;
             TenantID: string;
         };
+        SystemMessage: {
+            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
+            Name?: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            Role: "system";
+        };
         TextInput: {
             Text: string;
         };
-        TextOutput: {
+        TextPart: {
             Text: string;
         };
         Tool: {
@@ -399,29 +326,23 @@ export interface components {
             /** @enum {string} */
             Type: "function";
         };
-        TraceWithSpans: {
+        ToolMessage: {
+            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
             /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
              */
-            readonly $schema?: string;
-            Attributes: {
-                [key: string]: unknown;
-            };
-            /** Format: date-time */
-            CreatedAt: string;
-            /** Format: date-time */
-            End: string;
-            ID: string;
-            Name: string;
-            SessionID: string | null;
-            Spans: components["schemas"]["Span"][];
-            /** Format: date-time */
-            Start: string;
-            TenantID: string;
-            /** Format: date-time */
-            UpdatedAt: string;
-            XID: string;
+            Role: "tool";
+            ToolCallID: string;
+        };
+        UserMessage: {
+            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
+            Name?: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            Role: "user";
         };
     };
     responses: never;
@@ -486,7 +407,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TraceWithSpans"];
+                    "application/json": components["schemas"]["IngestSignalsV1ResponseBody"];
                 };
             };
             /** @description Error */
