@@ -46,14 +46,10 @@ export const example = async () => {
   await asyncSleep(50);
   span2_2.end({
     Input: {
-      Text: {
-        Text: "Hello, world!",
-      },
+      Text: "Hello, world!",
     },
     Output: {
-      Text: {
-        Text: "Oh hey, let me know if there's anything I can help with!",
-      },
+      Text: "Oh hey, let me know if there's anything I can help with!",
     },
     Model: "openai/gpt-4o-mini",
   });
@@ -63,7 +59,11 @@ export const example = async () => {
 
   trace.end();
 
-  await obs.flushAll()
+  await obs.flushAll();
+
+  await obs.shutdown();
+
+  return;
 };
 
 await example();

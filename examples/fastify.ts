@@ -2,10 +2,10 @@ import "dotenv/config";
 import Fastify from "fastify";
 import { env } from "node:process";
 import OpenAI from "openai";
-import { newMessagesFromOpenai, newTextOutput } from "../src/openapi";
-import type { Span } from "../src/signals";
 import { ModelmetryClient } from "../src/sdk";
+import type { Span } from "../src/signals";
 import { asyncSleep } from "../src/utils/dates";
+import { fromOpenaiMessages } from "../src/providers/openai/index";
 
 // Instantiate the Modelmetry client
 const TENANT_ID = String(env.TENANT_ID); // e.g., ten_acmelimited12
@@ -86,7 +86,7 @@ const loadTopics = async (parentSpan: Span) => {
 
 const randomTopic = async (topics: string[], parentSpan: Span) => {
   return parentSpan.startSpan("random-selection", "other", async (span) => {
-    span.setAttribute("email", "someone@example.com");
+    span.setMetadata("email", "someone@example.com");
     await asyncSleep(Math.floor(Math.random() * 87) + 12);
     return topics[Math.floor(Math.random() * topics.length)];
   })
@@ -112,10 +112,8 @@ const generateJoke = async (topic: string, parentSpan: Span) => {
   span.familyData.Model = model;
   span.familyData.Options = { MaxTokens: 500 };
   span.familyData.Input = {
-    Chat: {
-      Messages: newMessagesFromOpenai(messages),
-      Settings: { MaxTokens: 500 },
-    },
+    Messages: fromOpenaiMessages(messages),
+    Options: { MaxTokens: 500 },
   }
 
   try {
@@ -123,7 +121,7 @@ const generateJoke = async (topic: string, parentSpan: Span) => {
     const joke = jokeResponse.choices[0].message.content;
 
     // end the span with the output
-    span.end({ Output: { Text: newTextOutput(String(jokeResponse.choices[0].message.content)) } });
+    span.end({ Output: { Text: String(jokeResponse.choices[0].message.content) } });
 
     return joke;
   } catch (error) {
