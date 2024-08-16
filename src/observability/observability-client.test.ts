@@ -1,9 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { CompletionSpan, EmbeddingsSpan, OtherSpan, RetrievalSpan, Trace } from "../signals";
+import { Trace } from "../signals";
 import { makeMockClient } from "../test/fixtures";
 import { asyncSleep } from "../utils/dates";
 import { ObservabilityClient } from "./observability-client";
-import { Embeddings } from "openai/resources";
 
 describe("constructor", () => {
   test("should set the tenantId and client properties correctly", () => {

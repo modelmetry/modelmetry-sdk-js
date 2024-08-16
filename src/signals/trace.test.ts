@@ -97,14 +97,14 @@ describe("startSpan to return the callback's return value", async () => {
       "span1",
       "completion",
       async (span) => {
-        span.setAttribute("key", "value");
+        span.setMetadata("key", "value");
         s = span;
         return "the actual output";
       },
     );
     expect(output).toBe("the actual output");
     expect(s).toBeInstanceOf(CompletionSpan);
-    expect(s.getAttributes()).toEqual({ key: "value" });
+    expect(s.getAllMetadata()).toEqual({ key: "value" });
   });
 
   test("embeddings span", async () => {
@@ -114,14 +114,14 @@ describe("startSpan to return the callback's return value", async () => {
       "span1",
       "embeddings",
       async (span) => {
-        span.setAttribute("key", "value");
+        span.setMetadata("key", "value");
         s = span;
         return "the actual output";
       },
     );
     expect(output).toBe("the actual output");
     expect(s).toBeInstanceOf(EmbeddingsSpan);
-    expect(s.getAttributes()).toEqual({ key: "value" });
+    expect(s.getAllMetadata()).toEqual({ key: "value" });
   });
 
   test("retrieval span", async () => {
@@ -131,14 +131,14 @@ describe("startSpan to return the callback's return value", async () => {
       "span1",
       "retrieval",
       async (span) => {
-        span.setAttribute("key", "value");
+        span.setMetadata("key", "value");
         s = span;
         return "the actual output";
       },
     );
     expect(output).toBe("the actual output");
     expect(s).toBeInstanceOf(RetrievalSpan);
-    expect(s.getAttributes()).toEqual({ key: "value" });
+    expect(s.getAllMetadata()).toEqual({ key: "value" });
   });
 
   test("other span", async () => {
@@ -148,14 +148,14 @@ describe("startSpan to return the callback's return value", async () => {
       "span1",
       "other",
       async (span) => {
-        span.setAttribute("key", "value");
+        span.setMetadata("key", "value");
         s = span;
         return "the actual output";
       },
     );
     expect(output).toBe("the actual output");
     expect(s).toBeInstanceOf(OtherSpan);
-    expect(s.getAttributes()).toEqual({ key: "value" });
+    expect(s.getAllMetadata()).toEqual({ key: "value" });
   });
 
 });

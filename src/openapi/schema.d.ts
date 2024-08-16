@@ -91,13 +91,25 @@ export interface components {
             Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
             Options: components["schemas"]["Options"];
         };
+        CompletionPayload: {
+            Context?: components["schemas"]["CompletionPayloadContext"];
+            /** @description Input for completion */
+            Input?: components["schemas"]["TextInput"] | components["schemas"]["ChatInput"];
+            Model: string;
+            Options: components["schemas"]["Options"];
+            Output?: components["schemas"]["Output"];
+        };
+        CompletionPayloadContext: {
+            ParsedSystem: string;
+            RetrievedItems: components["schemas"]["RetrievedItem"][] | null;
+        };
         CreateEventParams: {
             /** Format: date-time */
             At?: string | null;
-            Attributes?: {
+            EntryID?: string | null;
+            Metadata?: {
                 [key: string]: unknown;
             };
-            EntryID?: string | null;
             Name: string;
             SpanID?: string | null;
             TraceID?: string | null;
@@ -121,21 +133,21 @@ export interface components {
             XID: string;
         };
         CreateSessionParams: {
-            Attributes?: {
+            Metadata?: {
                 [key: string]: unknown;
             };
             Name?: string | null;
             XID: string;
         };
         CreateSpanParams: {
-            Attributes?: {
-                [key: string]: unknown;
-            };
             /** Format: date-time */
             End: string | null;
             Family?: string | null;
             FamilyData?: unknown;
             Message?: string | null;
+            Metadata?: {
+                [key: string]: unknown;
+            };
             Name: string;
             ParentID?: string | null;
             Severity?: string | null;
@@ -145,11 +157,11 @@ export interface components {
             XID: string;
         };
         CreateTraceParams: {
-            Attributes?: {
-                [key: string]: unknown;
-            };
             /** Format: date-time */
             End?: string | null;
+            Metadata?: {
+                [key: string]: unknown;
+            };
             Name?: string | null;
             SessionID?: string | null;
             /** Format: date-time */
@@ -161,6 +173,10 @@ export interface components {
             Detail?: "auto" | "low" | "high";
             MimeType: string;
             URI: string;
+        };
+        EmbeddingsPayload: {
+            Inputs: string[] | null;
+            Options: components["schemas"]["Options"];
         };
         ErrorDetail: {
             /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
@@ -198,6 +214,47 @@ export interface components {
              * @default about:blank
              */
             type: string;
+        };
+        Event: {
+            /** Format: date-time */
+            At: string;
+            /** Format: date-time */
+            CreatedAt: string;
+            EntryID: string | null;
+            ID: string;
+            Metadata: {
+                [key: string]: unknown;
+            };
+            Name: string;
+            SpanID: string | null;
+            TenantID: string;
+            TraceID: string | null;
+            /** Format: date-time */
+            UpdatedAt: string;
+            XID: string;
+        };
+        Finding: {
+            /** Format: date-time */
+            At: string;
+            Comment: string;
+            /** Format: date-time */
+            CreatedAt: string;
+            EntryID: string | null;
+            EvaluatorID: string | null;
+            ID: string;
+            Metadata: {
+                [key: string]: unknown;
+            };
+            Name: string;
+            /** @enum {string} */
+            Source: "annotation" | "api" | "enduser" | "evaluator";
+            SpanID: string | null;
+            TenantID: string;
+            TraceID: string | null;
+            /** Format: date-time */
+            UpdatedAt: string;
+            Value: number | boolean | string;
+            XID: string;
         };
         Function: {
             Arguments: unknown;
@@ -264,6 +321,7 @@ export interface components {
             TopP?: number;
             User?: string;
         };
+        OtherPayload: Record<string, never>;
         Output: {
             Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
             Text: string;
@@ -272,6 +330,22 @@ export interface components {
             /** @description Input for completion */
             Input?: components["schemas"]["TextInput"] | components["schemas"]["ChatInput"];
             Output?: components["schemas"]["Output"];
+        };
+        RetrievalPayload: {
+            Queries: components["schemas"]["RetrievalQuery"][] | null;
+            Retrieved: components["schemas"]["RetrievedItem"][] | null;
+        };
+        RetrievalQuery: {
+            Embeddings: number[] | null;
+            Name: string;
+        };
+        RetrievedItem: {
+            Content: unknown;
+            ContentType: string;
+            Identifier: string;
+            Metadata: {
+                [key: string]: unknown;
+            };
         };
         SimplifiedFinding: {
             /** Format: date-time */
@@ -285,6 +359,34 @@ export interface components {
             /** @enum {string} */
             Source: "annotation" | "api" | "enduser" | "evaluator";
             Value: number | boolean | string;
+        };
+        Span: {
+            Completion: components["schemas"]["CompletionPayload"];
+            /** Format: date-time */
+            CreatedAt: string;
+            Embeddings: components["schemas"]["EmbeddingsPayload"];
+            /** Format: date-time */
+            End: string;
+            Events: components["schemas"]["Event"][] | null;
+            Family: string;
+            Findings: components["schemas"]["Finding"][] | null;
+            ID: string;
+            Message: string;
+            Metadata: {
+                [key: string]: unknown;
+            };
+            Name: string;
+            Other: components["schemas"]["OtherPayload"];
+            ParentID: string | null;
+            Retrieval: components["schemas"]["RetrievalPayload"];
+            Severity: string;
+            /** Format: date-time */
+            Start: string;
+            TenantID: string;
+            TraceID: string;
+            /** Format: date-time */
+            UpdatedAt: string;
+            XID: string;
         };
         SummarisedEntry: {
             /** Format: int64 */
@@ -334,6 +436,43 @@ export interface components {
              */
             Role: "tool";
             ToolCallID: string;
+        };
+        Trace: {
+            /** Format: date-time */
+            CreatedAt: string;
+            /** Format: date-time */
+            End: string;
+            ID: string;
+            Metadata: {
+                [key: string]: unknown;
+            };
+            Name: string;
+            SessionID?: string | null;
+            /** Format: date-time */
+            Start: string;
+            TenantID: string;
+            /** Format: date-time */
+            UpdatedAt: string;
+            XID: string;
+        };
+        TraceWithSpans: {
+            /** Format: date-time */
+            CreatedAt: string;
+            /** Format: date-time */
+            End: string;
+            ID: string;
+            Metadata: {
+                [key: string]: unknown;
+            };
+            Name: string;
+            SessionID?: string | null;
+            Spans: components["schemas"]["Span"][] | null;
+            /** Format: date-time */
+            Start: string;
+            TenantID: string;
+            /** Format: date-time */
+            UpdatedAt: string;
+            XID: string;
         };
         UserMessage: {
             Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;

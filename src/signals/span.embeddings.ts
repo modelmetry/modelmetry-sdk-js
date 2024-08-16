@@ -18,7 +18,7 @@ export class EmbeddingsSpan extends BaseSpan {
     parentId,
     message,
     severity,
-    attributes,
+    metadata,
     inputs,
     options,
   }: EmbeddingsSpanArgs) {
@@ -28,7 +28,7 @@ export class EmbeddingsSpan extends BaseSpan {
       parentId,
       message,
       severity,
-      attributes,
+      metadata,
       family: "embeddings",
     });
     if (inputs) {

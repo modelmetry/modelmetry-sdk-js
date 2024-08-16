@@ -1,4 +1,4 @@
-import type { Finding, Trace, Event, IngestBatch } from "../signals";
+import type { Event, Finding, IngestBatch, Trace } from "../signals";
 
 export const calculateKilobyteSize = (input: unknown): number => {
   return calculcateByteSize(input) / 1024;

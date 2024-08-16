@@ -5,7 +5,7 @@ export class Event {
   private readonly xid: string;
   private name = "";
   private at: Date = new Date();
-  private attributes: schemas["Event"]["Attributes"] = {};
+  private metadata: schemas["Event"]["Metadata"] = {};
   private traceId?: string;
   private spanId?: string;
 
@@ -14,13 +14,13 @@ export class Event {
     traceId,
     spanId,
     at,
-    attributes,
+    metadata,
   }: {
     name: string;
     traceId?: string;
     spanId?: string;
     at?: Date;
-    attributes?: schemas["Event"]["Attributes"];
+    metadata?: schemas["Event"]["Metadata"];
   }) {
     this.xid = crypto.randomUUID();
     this.name = name;
@@ -31,23 +31,23 @@ export class Event {
       this.at = at;
     }
 
-    if (attributes) {
-      this.attributes = attributes;
+    if (metadata) {
+      this.metadata = metadata;
     }
   }
 
-  setAttribute(key: string, value: string): Event {
-    this.attributes[key] = value;
+  setMetadata(key: string, value: string): Event {
+    this.metadata[key] = value;
     return this;
   }
 
-  mergeAttributes(attributes: schemas["Event"]["Attributes"]): Event {
-    this.attributes = { ...this.attributes, ...attributes };
+  mergeMetadata(metadata: schemas["Event"]["Metadata"]): Event {
+    this.metadata = { ...this.metadata, ...metadata };
     return this;
   }
 
-  putAttributes(attributes: schemas["Event"]["Attributes"]): Event {
-    this.attributes = { ...attributes };
+  putMetadata(metadata: schemas["Event"]["Metadata"]): Event {
+    this.metadata = { ...metadata };
     return this;
   }
 
@@ -65,7 +65,7 @@ export class Event {
       XID: this.xid,
       Name: this.name,
       At: this.at.toISOString(),
-      Attributes: this.attributes,
+      Metadata: this.metadata,
       TraceID: this.traceId,
       SpanID: this.spanId,
       EntryID: null,

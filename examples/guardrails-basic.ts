@@ -17,9 +17,7 @@ export const basicGuardrailExample = async () => {
 
   const result = await modelmetry.guardrails().check("grd_jaohzgcbd5hbt1grwmvp", {
     Input: {
-      Text: {
-        Text: "Can you please let me know what the employee handbook say about vacation time during a busy period?",
-      },
+      Text: "Can you please let me know what the employee handbook say about vacation time during a busy period?",
     },
   })
 

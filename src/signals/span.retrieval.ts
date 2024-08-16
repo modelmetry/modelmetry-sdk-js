@@ -17,7 +17,7 @@ export class RetrievalSpan extends BaseSpan {
     parentId,
     message,
     severity,
-    attributes,
+    metadata,
     queries = [],
   }: RetrievalSpanArgs) {
     super({
@@ -26,10 +26,10 @@ export class RetrievalSpan extends BaseSpan {
       parentId,
       message,
       severity,
-      attributes,
+      metadata,
       family: "retrieval",
     });
-    if (queries.length > 0) {
+    if (queries && queries.length > 0) {
       this.familyData.Queries = queries;
     }
   }

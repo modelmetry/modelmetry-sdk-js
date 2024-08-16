@@ -1,9 +1,8 @@
 import type { Client } from "openapi-fetch";
 import type { paths } from "../openapi";
 import { Trace } from "../signals/trace";
-import { buildIngestBatchFromTraces, calculateKilobyteSize } from "./utils";
 import { APIError } from "../utils/problems";
-import { Span } from "../signals";
+import { buildIngestBatchFromTraces, calculateKilobyteSize } from "./utils";
 
 export type ObservabilityClientOptions = {
   tenantId: string;

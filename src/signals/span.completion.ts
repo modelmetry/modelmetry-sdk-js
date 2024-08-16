@@ -9,8 +9,6 @@ export class CompletionSpan extends BaseSpan {
   familyData: CompletionPayload = {
     Model: "",
     Options: {},
-    Input: {},
-    Output: {},
   };
 
   constructor({
@@ -19,7 +17,7 @@ export class CompletionSpan extends BaseSpan {
     parentId,
     message,
     severity,
-    attributes,
+    metadata,
     options,
   }: CompletionSpanArgs) {
     super({
@@ -28,7 +26,7 @@ export class CompletionSpan extends BaseSpan {
       parentId,
       message,
       severity,
-      attributes,
+      metadata,
       family: "completion",
     });
     if (options) {
@@ -53,8 +51,8 @@ export class CompletionSpan extends BaseSpan {
 
   end(data: Partial<CompletionPayload>) {
     this.familyData.Model = data.Model || "";
-    this.familyData.Input = data.Input || {};
-    this.familyData.Output = data.Output || {};
+    if (data.Input) this.familyData.Input = data.Input;
+    if (data.Output) this.familyData.Output = data.Output;
     this.maybeSetEndedAtToNow();
     return this;
   }

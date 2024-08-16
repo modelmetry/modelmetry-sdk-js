@@ -16,7 +16,7 @@ export class Trace {
   private readonly xid: string;
   private readonly tenantId: string;
   private name = "";
-  private attributes: schemas["TraceWithSpans"]["Attributes"] = {};
+  private metadata: schemas["TraceWithSpans"]["Metadata"] = {};
   private startedAt: Date = new Date();
   private endedAt: Date | undefined;
 
@@ -27,16 +27,16 @@ export class Trace {
   constructor({
     name,
     tenantId,
-    attributes,
+    metadata,
   }: {
     name: string;
     tenantId: string;
-    attributes?: schemas["TraceWithSpans"]["Attributes"];
+    metadata?: schemas["TraceWithSpans"]["Metadata"];
   }) {
     this.xid = crypto.randomUUID();
     this.tenantId = tenantId;
     this.name = name;
-    this.attributes = attributes || {};
+    this.metadata = metadata || {};
     this.startedAt = new Date();
   }
 
@@ -241,8 +241,8 @@ export class Trace {
     return this.startedAt;
   }
 
-  getAttributes() {
-    return this.attributes;
+  getMetadata() {
+    return this.metadata;
   }
 
   getName() {
@@ -282,7 +282,7 @@ export class Trace {
       Name: this.name,
       Start: this.startedAt.toISOString(),
       End: this.endedAt?.toISOString(),
-      Attributes: this.attributes,
+      Metadata: this.metadata,
       SessionID: null,
     };
   }

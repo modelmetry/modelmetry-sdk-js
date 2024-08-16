@@ -137,6 +137,42 @@ components:
       required:
         - Options
       type: object
+    CompletionPayload:
+      additionalProperties: false
+      properties:
+        Context:
+          $ref: "#/components/schemas/CompletionPayloadContext"
+        Input:
+          description: Input for completion
+          oneOf:
+            - $ref: "#/components/schemas/TextInput"
+            - $ref: "#/components/schemas/ChatInput"
+          type: object
+        Model:
+          type: string
+        Options:
+          $ref: "#/components/schemas/Options"
+        Output:
+          $ref: "#/components/schemas/Output"
+      required:
+        - Model
+        - Options
+      type: object
+    CompletionPayloadContext:
+      additionalProperties: false
+      properties:
+        ParsedSystem:
+          type: string
+        RetrievedItems:
+          items:
+            $ref: "#/components/schemas/RetrievedItem"
+          type:
+            - array
+            - "null"
+      required:
+        - ParsedSystem
+        - RetrievedItems
+      type: object
     CreateEventParams:
       additionalProperties: false
       properties:
@@ -145,13 +181,13 @@ components:
           type:
             - string
             - "null"
-        Attributes:
-          additionalProperties: {}
-          type: object
         EntryID:
           type:
             - string
             - "null"
+        Metadata:
+          additionalProperties: {}
+          type: object
         Name:
           type: string
         SpanID:
@@ -225,7 +261,7 @@ components:
     CreateSessionParams:
       additionalProperties: false
       properties:
-        Attributes:
+        Metadata:
           additionalProperties: {}
           type: object
         Name:
@@ -240,9 +276,6 @@ components:
     CreateSpanParams:
       additionalProperties: false
       properties:
-        Attributes:
-          additionalProperties: {}
-          type: object
         End:
           format: date-time
           type:
@@ -257,6 +290,9 @@ components:
           type:
             - string
             - "null"
+        Metadata:
+          additionalProperties: {}
+          type: object
         Name:
           type: string
         ParentID:
@@ -284,14 +320,14 @@ components:
     CreateTraceParams:
       additionalProperties: false
       properties:
-        Attributes:
-          additionalProperties: {}
-          type: object
         End:
           format: date-time
           type:
             - string
             - "null"
+        Metadata:
+          additionalProperties: {}
+          type: object
         Name:
           type:
             - string
@@ -325,6 +361,21 @@ components:
       required:
         - MimeType
         - URI
+      type: object
+    EmbeddingsPayload:
+      additionalProperties: false
+      properties:
+        Inputs:
+          items:
+            type: string
+          type:
+            - array
+            - "null"
+        Options:
+          $ref: "#/components/schemas/Options"
+      required:
+        - Inputs
+        - Options
       type: object
     ErrorDetail:
       additionalProperties: false
@@ -384,6 +435,124 @@ components:
             - https://example.com/errors/example
           format: uri
           type: string
+      type: object
+    Event:
+      additionalProperties: false
+      properties:
+        At:
+          format: date-time
+          type: string
+        CreatedAt:
+          format: date-time
+          type: string
+        EntryID:
+          type:
+            - string
+            - "null"
+        ID:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Name:
+          type: string
+        SpanID:
+          type:
+            - string
+            - "null"
+        TenantID:
+          type: string
+        TraceID:
+          type:
+            - string
+            - "null"
+        UpdatedAt:
+          format: date-time
+          type: string
+        XID:
+          type: string
+      required:
+        - ID
+        - XID
+        - TenantID
+        - Name
+        - Metadata
+        - At
+        - UpdatedAt
+        - CreatedAt
+        - TraceID
+        - SpanID
+        - EntryID
+      type: object
+    Finding:
+      additionalProperties: false
+      properties:
+        At:
+          format: date-time
+          type: string
+        Comment:
+          type: string
+        CreatedAt:
+          format: date-time
+          type: string
+        EntryID:
+          type:
+            - string
+            - "null"
+        EvaluatorID:
+          type:
+            - string
+            - "null"
+        ID:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Name:
+          type: string
+        Source:
+          enum:
+            - annotation
+            - api
+            - enduser
+            - evaluator
+          type: string
+        SpanID:
+          type:
+            - string
+            - "null"
+        TenantID:
+          type: string
+        TraceID:
+          type:
+            - string
+            - "null"
+        UpdatedAt:
+          format: date-time
+          type: string
+        Value:
+          oneOf:
+            - type: number
+            - type: boolean
+            - type: string
+        XID:
+          type: string
+      required:
+        - ID
+        - XID
+        - Name
+        - TenantID
+        - TraceID
+        - SpanID
+        - EntryID
+        - Value
+        - Source
+        - Comment
+        - Metadata
+        - EvaluatorID
+        - At
+        - UpdatedAt
+        - CreatedAt
       type: object
     Function:
       additionalProperties: false
@@ -530,6 +699,9 @@ components:
         User:
           type: string
       type: object
+    OtherPayload:
+      additionalProperties: false
+      type: object
     Output:
       additionalProperties: false
       properties:
@@ -570,6 +742,58 @@ components:
         Output:
           $ref: "#/components/schemas/Output"
       type: object
+    RetrievalPayload:
+      additionalProperties: false
+      properties:
+        Queries:
+          items:
+            $ref: "#/components/schemas/RetrievalQuery"
+          type:
+            - array
+            - "null"
+        Retrieved:
+          items:
+            $ref: "#/components/schemas/RetrievedItem"
+          type:
+            - array
+            - "null"
+      required:
+        - Queries
+        - Retrieved
+      type: object
+    RetrievalQuery:
+      additionalProperties: false
+      properties:
+        Embeddings:
+          items:
+            format: float
+            type: number
+          type:
+            - array
+            - "null"
+        Name:
+          type: string
+      required:
+        - Name
+        - Embeddings
+      type: object
+    RetrievedItem:
+      additionalProperties: false
+      properties:
+        Content: {}
+        ContentType:
+          type: string
+        Identifier:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+      required:
+        - Identifier
+        - ContentType
+        - Content
+        - Metadata
+      type: object
     SimplifiedFinding:
       additionalProperties: false
       properties:
@@ -607,6 +831,86 @@ components:
         - Metadata
         - EvaluatorID
         - At
+      type: object
+    Span:
+      additionalProperties: false
+      properties:
+        Completion:
+          $ref: "#/components/schemas/CompletionPayload"
+        CreatedAt:
+          format: date-time
+          type: string
+        Embeddings:
+          $ref: "#/components/schemas/EmbeddingsPayload"
+        End:
+          format: date-time
+          type: string
+        Events:
+          items:
+            $ref: "#/components/schemas/Event"
+          type:
+            - array
+            - "null"
+        Family:
+          type: string
+        Findings:
+          items:
+            $ref: "#/components/schemas/Finding"
+          type:
+            - array
+            - "null"
+        ID:
+          type: string
+        Message:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Name:
+          type: string
+        Other:
+          $ref: "#/components/schemas/OtherPayload"
+        ParentID:
+          type:
+            - string
+            - "null"
+        Retrieval:
+          $ref: "#/components/schemas/RetrievalPayload"
+        Severity:
+          type: string
+        Start:
+          format: date-time
+          type: string
+        TenantID:
+          type: string
+        TraceID:
+          type: string
+        UpdatedAt:
+          format: date-time
+          type: string
+        XID:
+          type: string
+      required:
+        - ID
+        - XID
+        - TenantID
+        - TraceID
+        - ParentID
+        - Name
+        - Family
+        - Severity
+        - Message
+        - Start
+        - End
+        - Embeddings
+        - Retrieval
+        - Completion
+        - Other
+        - Metadata
+        - Events
+        - Findings
+        - UpdatedAt
+        - CreatedAt
       type: object
     SummarisedEntry:
       additionalProperties: false
@@ -744,6 +1048,95 @@ components:
         - Contents
         - Role
         - ToolCallID
+      type: object
+    Trace:
+      additionalProperties: false
+      properties:
+        CreatedAt:
+          format: date-time
+          type: string
+        End:
+          format: date-time
+          type: string
+        ID:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Name:
+          type: string
+        SessionID:
+          type:
+            - string
+            - "null"
+        Start:
+          format: date-time
+          type: string
+        TenantID:
+          type: string
+        UpdatedAt:
+          format: date-time
+          type: string
+        XID:
+          type: string
+      required:
+        - ID
+        - XID
+        - TenantID
+        - Name
+        - Start
+        - End
+        - Metadata
+        - UpdatedAt
+        - CreatedAt
+      type: object
+    TraceWithSpans:
+      additionalProperties: false
+      properties:
+        CreatedAt:
+          format: date-time
+          type: string
+        End:
+          format: date-time
+          type: string
+        ID:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Name:
+          type: string
+        SessionID:
+          type:
+            - string
+            - "null"
+        Spans:
+          items:
+            $ref: "#/components/schemas/Span"
+          type:
+            - array
+            - "null"
+        Start:
+          format: date-time
+          type: string
+        TenantID:
+          type: string
+        UpdatedAt:
+          format: date-time
+          type: string
+        XID:
+          type: string
+      required:
+        - Spans
+        - ID
+        - XID
+        - TenantID
+        - Name
+        - Start
+        - End
+        - Metadata
+        - UpdatedAt
+        - CreatedAt
       type: object
     UserMessage:
       additionalProperties: false

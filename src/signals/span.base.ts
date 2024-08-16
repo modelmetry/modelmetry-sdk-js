@@ -23,7 +23,7 @@ export type BaseSpanArgs = {
   parentId?: string;
   message?: string;
   severity?: schemas["Span"]["Severity"];
-  attributes?: schemas["Span"]["Attributes"];
+  metadata?: schemas["Span"]["Metadata"];
   family?: schemas["Span"]["Family"];
 };
 
@@ -39,7 +39,7 @@ export abstract class BaseSpan {
   protected endedAt: Date | undefined;
   protected severity: schemas["Span"]["Severity"] = "unset"; // unset debug warning error
   protected family: schemas["Span"]["Family"] = ""; // "" "embeddings" "retrieval" "completion"
-  protected attributes: schemas["Span"]["Attributes"] = {};
+  protected metadata: schemas["Span"]["Metadata"] = {};
   protected spans: Span[] = [];
   protected findings: Finding[] = [];
   protected events: Event[] = [];
@@ -52,7 +52,7 @@ export abstract class BaseSpan {
     message,
     severity,
     family,
-    attributes,
+    metadata,
   }: BaseSpanArgs) {
     this.traceId = traceId;
     this.xid = crypto.randomUUID();
@@ -61,7 +61,7 @@ export abstract class BaseSpan {
     this.severity = severity || "unset";
     this.message = message || "";
     this.family = family || "";
-    this.attributes = attributes || {};
+    this.metadata = metadata || {};
   }
 
   // findings
@@ -126,7 +126,7 @@ export abstract class BaseSpan {
     this.newEvent("errored");
     this.setSeverity("error");
     this.setMessage(error.message);
-    this.setAttribute("error", error.message);
+    this.setMetadata("error", error.message);
     this.setEndedAt(new Date());
   }
 
@@ -157,22 +157,26 @@ export abstract class BaseSpan {
     return this;
   }
 
-  setAttribute(key: string, value: unknown) {
-    this.attributes[key] = value;
+  setMetadata(key: string, value: unknown) {
+    this.metadata[key] = value;
     return this;
   }
 
-  getAttribute(key: string) {
-    return this.attributes[key];
+  getAllMetadata() {
+    return this.metadata;
   }
 
-  mergeAttributes(attributes: schemas["Span"]["Attributes"]) {
-    this.attributes = { ...this.attributes, ...attributes };
+  getMetadata(key: string) {
+    return this.metadata[key];
+  }
+
+  mergeMetadata(metadata: schemas["Span"]["Metadata"]) {
+    this.metadata = { ...this.metadata, ...metadata };
     return this;
   }
 
-  putAttributes(attributes: schemas["Span"]["Attributes"]) {
-    this.attributes = { ...attributes };
+  putMetadata(metadata: schemas["Span"]["Metadata"]) {
+    this.metadata = { ...metadata };
     return this;
   }
 
@@ -229,10 +233,6 @@ export abstract class BaseSpan {
 
   // getters
 
-  getAttributes() {
-    return this.attributes;
-  }
-
   getFamily() {
     return this.family;
   }
@@ -281,7 +281,7 @@ export abstract class BaseSpan {
       End: this.endedAt?.toISOString() || new Date().toISOString(),
       Message: this.message,
       TraceID: this.traceId,
-      Attributes: this.attributes,
+      Metadata: this.metadata,
       Family: this.family,
       FamilyData: this.familyData,
       ParentID: this.parentId,

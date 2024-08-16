@@ -15,7 +15,7 @@ export class OtherSpan extends BaseSpan {
     parentId,
     message,
     severity,
-    attributes,
+    metadata,
   }: OtherSpanArgs) {
     super({
       name,
@@ -23,7 +23,7 @@ export class OtherSpan extends BaseSpan {
       parentId,
       message,
       severity,
-      attributes,
+      metadata,
       family: "unset",
     });
   }
