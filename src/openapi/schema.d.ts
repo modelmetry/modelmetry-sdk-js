@@ -323,8 +323,8 @@ export interface components {
         };
         OtherPayload: Record<string, never>;
         Output: {
-            Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
-            Text: string;
+            Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
+            Text?: string;
         };
         Payload: {
             /** @description Input for completion */

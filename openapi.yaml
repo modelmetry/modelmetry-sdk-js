@@ -726,9 +726,6 @@ components:
             - "null"
         Text:
           type: string
-      required:
-        - Messages
-        - Text
       type: object
     Payload:
       additionalProperties: false

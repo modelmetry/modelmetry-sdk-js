@@ -68,7 +68,7 @@ export class ObservabilityClient {
     const trace = new Trace({
       name,
       tenantId: this.tenantId,
-      attributes: {},
+      metadata: {},
     });
     this.traces.push(trace);
     return trace;
