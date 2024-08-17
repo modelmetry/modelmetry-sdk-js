@@ -29,7 +29,7 @@ test("GuardrailsClient.check() arguements are properly passed to the request", a
   // @ts-ignore 
   const req = mockFetch.mock.calls[0][0] as Request;
   expect(req).toBeInstanceOf(Request);
-  expect(req.url).toBe("http://localhost:8888/calls");
+  expect(req.url).toBe("http://localhost:8888/checks");
   expect(await req.json()).toEqual(body);
 });
 
