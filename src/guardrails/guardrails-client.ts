@@ -1,5 +1,5 @@
 import type { Client } from "openapi-fetch";
-import type { Call, paths, Payload } from "../openapi";
+import type { GuardrailCheck, paths, Payload } from "../openapi";
 
 type GuardrailsClientOptions = {
   tenantId: string;
@@ -19,7 +19,7 @@ export class GuardrailsClient {
     guardrailId: string,
     payload: Payload
   ): Promise<GuardrailCheckResult> {
-    const { data, error } = await this.client.POST("/calls", {
+    const { data, error } = await this.client.POST("/checks", {
       body: {
         TenantID: this.tenantId,
         GuardrailID: guardrailId,
@@ -41,13 +41,13 @@ export class GuardrailsClient {
 }
 
 export class GuardrailCheckResult {
-  private readonly outcome: Call["Outcome"];
+  private readonly outcome: GuardrailCheck["Outcome"];
 
   public readonly passed: boolean = false;
   public readonly errored: boolean = false;
   public readonly failed: boolean = false;
 
-  constructor(outcome: Call["Outcome"]) {
+  constructor(outcome: GuardrailCheck["Outcome"]) {
     this.outcome = outcome
     this.passed = outcome === "pass"
     this.errored = outcome === "error"

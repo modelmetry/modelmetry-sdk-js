@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/calls": {
+    "/checks": {
         parameters: {
             query?: never;
             header?: never;
@@ -13,8 +13,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** CallGuardrail */
-        post: operations["call-guardrail"];
+        /** CheckPayload */
+        post: operations["check-payload"];
         delete?: never;
         options?: never;
         head?: never;
@@ -52,44 +52,19 @@ export interface components {
             Role: "assistant";
             ToolCalls?: components["schemas"]["ToolCall"][] | null;
         };
-        Call: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             */
-            readonly $schema?: string;
-            /** Format: date-time */
-            CreatedAt: string;
-            CreatedBy: string;
-            /** Format: int64 */
-            DurationMs: number;
-            GuardrailID: string;
-            ID: string;
-            Metadata: {
-                [key: string]: unknown;
-            };
-            /** @enum {string} */
-            Outcome: "pass" | "fail" | "error";
-            Payload: components["schemas"]["Payload"];
-            SummarisedEntries: components["schemas"]["SummarisedEntry"][] | null;
-            TenantID: string;
-            /** Format: date-time */
-            UpdatedAt: string;
-            UpdatedBy: string;
-        };
-        CallGuardrailRequestBody: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             */
-            readonly $schema?: string;
-            GuardrailID: string;
-            Payload: components["schemas"]["Payload"];
-            TenantID: string;
-        };
         ChatInput: {
             Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
             Options: components["schemas"]["Options"];
+        };
+        CheckPayloadRequestBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             */
+            readonly $schema?: string;
+            GuardrailID: string;
+            Payload: components["schemas"]["Payload"];
+            TenantID: string;
         };
         CompletionPayload: {
             Context?: components["schemas"]["CompletionPayloadContext"];
@@ -259,6 +234,31 @@ export interface components {
         Function: {
             Arguments: unknown;
             Name: string;
+        };
+        GuardrailCheck: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            CreatedAt: string;
+            CreatedBy: string;
+            /** Format: int64 */
+            DurationMs: number;
+            GuardrailID: string;
+            ID: string;
+            Metadata: {
+                [key: string]: unknown;
+            };
+            /** @enum {string} */
+            Outcome: "pass" | "fail" | "error";
+            Payload: components["schemas"]["Payload"];
+            SummarisedEntries: components["schemas"]["SummarisedEntry"][] | null;
+            TenantID: string;
+            /** Format: date-time */
+            UpdatedAt: string;
+            UpdatedBy: string;
         };
         IngestSignalsV1RequestBody: {
             /**
@@ -492,7 +492,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    "call-guardrail": {
+    "check-payload": {
         parameters: {
             query?: {
                 dryrun?: boolean;
@@ -503,7 +503,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CallGuardrailRequestBody"];
+                "application/json": components["schemas"]["CheckPayloadRequestBody"];
             };
         };
         responses: {
@@ -513,7 +513,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Call"];
+                    "application/json": components["schemas"]["GuardrailCheck"];
                 };
             };
             /** @description Error */

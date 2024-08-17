@@ -16,7 +16,7 @@ export type CompletionPayload = schemas["CompletionPayload"];
 export type RetrievalPayload = schemas["RetrievalPayload"];
 export type EmbeddingsPayload = schemas["EmbeddingsPayload"];
 
-export type Call = schemas["Call"];
+export type GuardrailCheck = schemas["GuardrailCheck"];
 
 export type ErrorModel = schemas["ErrorModel"];
 

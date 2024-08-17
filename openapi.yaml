@@ -29,87 +29,6 @@ components:
         - Role
         - Contents
       type: object
-    Call:
-      additionalProperties: false
-      properties:
-        $schema:
-          description: A URL to the JSON Schema for this object.
-          examples:
-            - http://api.modelmetry.com//schemas/Call.json
-          format: uri
-          readOnly: true
-          type: string
-        CreatedAt:
-          format: date-time
-          type: string
-        CreatedBy:
-          type: string
-        DurationMs:
-          format: int64
-          type: integer
-        GuardrailID:
-          type: string
-        ID:
-          type: string
-        Metadata:
-          additionalProperties: {}
-          type: object
-        Outcome:
-          enum:
-            - pass
-            - fail
-            - error
-          type: string
-        Payload:
-          $ref: "#/components/schemas/Payload"
-        SummarisedEntries:
-          items:
-            $ref: "#/components/schemas/SummarisedEntry"
-          type:
-            - array
-            - "null"
-        TenantID:
-          type: string
-        UpdatedAt:
-          format: date-time
-          type: string
-        UpdatedBy:
-          type: string
-      required:
-        - ID
-        - TenantID
-        - GuardrailID
-        - Payload
-        - Outcome
-        - Metadata
-        - SummarisedEntries
-        - DurationMs
-        - UpdatedAt
-        - UpdatedBy
-        - CreatedAt
-        - CreatedBy
-      type: object
-    CallGuardrailRequestBody:
-      additionalProperties: false
-      properties:
-        $schema:
-          description: A URL to the JSON Schema for this object.
-          examples:
-            - http://api.modelmetry.com//schemas/CallGuardrailRequestBody.json
-          format: uri
-          readOnly: true
-          type: string
-        GuardrailID:
-          type: string
-        Payload:
-          $ref: "#/components/schemas/Payload"
-        TenantID:
-          type: string
-      required:
-        - TenantID
-        - GuardrailID
-        - Payload
-      type: object
     ChatInput:
       additionalProperties: false
       properties:
@@ -136,6 +55,27 @@ components:
           $ref: "#/components/schemas/Options"
       required:
         - Options
+      type: object
+    CheckPayloadRequestBody:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/CheckPayloadRequestBody.json
+          format: uri
+          readOnly: true
+          type: string
+        GuardrailID:
+          type: string
+        Payload:
+          $ref: "#/components/schemas/Payload"
+        TenantID:
+          type: string
+      required:
+        - TenantID
+        - GuardrailID
+        - Payload
       type: object
     CompletionPayload:
       additionalProperties: false
@@ -563,6 +503,66 @@ components:
       required:
         - Name
         - Arguments
+      type: object
+    GuardrailCheck:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/GuardrailCheck.json
+          format: uri
+          readOnly: true
+          type: string
+        CreatedAt:
+          format: date-time
+          type: string
+        CreatedBy:
+          type: string
+        DurationMs:
+          format: int64
+          type: integer
+        GuardrailID:
+          type: string
+        ID:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Outcome:
+          enum:
+            - pass
+            - fail
+            - error
+          type: string
+        Payload:
+          $ref: "#/components/schemas/Payload"
+        SummarisedEntries:
+          items:
+            $ref: "#/components/schemas/SummarisedEntry"
+          type:
+            - array
+            - "null"
+        TenantID:
+          type: string
+        UpdatedAt:
+          format: date-time
+          type: string
+        UpdatedBy:
+          type: string
+      required:
+        - ID
+        - TenantID
+        - GuardrailID
+        - Payload
+        - Outcome
+        - Metadata
+        - SummarisedEntries
+        - DurationMs
+        - UpdatedAt
+        - UpdatedBy
+        - CreatedAt
+        - CreatedBy
       type: object
     IngestSignalsV1RequestBody:
       additionalProperties: false
@@ -1168,9 +1168,9 @@ info:
   version: 1.0.0
 openapi: 3.1.0
 paths:
-  /calls:
+  /checks:
     post:
-      operationId: call-guardrail
+      operationId: check-payload
       parameters:
         - explode: false
           in: query
@@ -1181,14 +1181,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CallGuardrailRequestBody"
+              $ref: "#/components/schemas/CheckPayloadRequestBody"
         required: true
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Call"
+                $ref: "#/components/schemas/GuardrailCheck"
           description: OK
         default:
           content:
@@ -1198,7 +1198,7 @@ paths:
           description: Error
       security:
         - apikeyAuth: []
-      summary: CallGuardrail
+      summary: CheckPayload
   /signals/ingest/v1:
     post:
       operationId: ingest-signals-v1
