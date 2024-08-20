@@ -28,7 +28,9 @@ export class GuardrailsClient {
     })
 
     if (error) {
-      return new GuardrailCheckResult("error")
+      const res = new GuardrailCheckResult("error")
+      res._error = error
+      return res
     }
 
     if (!data) {
@@ -46,6 +48,8 @@ export class GuardrailCheckResult {
   public readonly passed: boolean = false;
   public readonly errored: boolean = false;
   public readonly failed: boolean = false;
+
+  public _error: unknown = null;
 
   constructor(outcome: GuardrailCheck["Outcome"]) {
     this.outcome = outcome
