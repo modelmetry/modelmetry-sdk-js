@@ -53,8 +53,6 @@ components:
             - "null"
         Options:
           $ref: "#/components/schemas/Options"
-      required:
-        - Options
       type: object
     CheckPayloadRequestBody:
       additionalProperties: false
@@ -73,7 +71,6 @@ components:
         TenantID:
           type: string
       required:
-        - TenantID
         - GuardrailID
         - Payload
       type: object
@@ -1198,7 +1195,7 @@ paths:
           description: Error
       security:
         - apikeyAuth: []
-      summary: CheckPayload
+      summary: Check a payload
   /signals/ingest/v1:
     post:
       operationId: ingest-signals-v1
