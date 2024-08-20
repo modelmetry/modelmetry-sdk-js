@@ -13,7 +13,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** CheckPayload */
+        /** Check a payload */
         post: operations["check-payload"];
         delete?: never;
         options?: never;
@@ -54,7 +54,7 @@ export interface components {
         };
         ChatInput: {
             Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
-            Options: components["schemas"]["Options"];
+            Options?: components["schemas"]["Options"];
         };
         CheckPayloadRequestBody: {
             /**
@@ -64,7 +64,7 @@ export interface components {
             readonly $schema?: string;
             GuardrailID: string;
             Payload: components["schemas"]["Payload"];
-            TenantID: string;
+            TenantID?: string;
         };
         CompletionPayload: {
             Context?: components["schemas"]["CompletionPayloadContext"];
