@@ -15,13 +15,27 @@ export const basicGuardrailExample = async () => {
     baseUrl: HOST,
   })
 
-  const result = await modelmetry.guardrails().check("grd_jaohzgcbd5hbt1grwmvp", {
+  const result = await modelmetry.guardrails().check({
     Input: {
       Text: "Can you please let me know what the employee handbook say about vacation time during a busy period?",
     },
-  })
+  }, "grd_jaohzgcbd5hbt1grwmvp")
 
   console.log(JSON.stringify(result, null, 2))
+
+  if (result.failed) {
+    // Handle a failed check
+    console.error("Failed check", result)
+  }
+
+  if (result.errored) {
+    // Handle an errored check (an error means an unexpected error occurred, not that the check failed).
+    // By default, an error results in a "passed" check with this errored property set to true.
+    console.warn("Errored check", result)
+  }
+
+  // The check passed, carry on
+  console.info("Passed check", result)
 }
 
 await basicGuardrailExample();

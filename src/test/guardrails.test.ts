@@ -1,6 +1,6 @@
 import createClient from "openapi-fetch";
-import { describe, expect, test, vi } from "vitest";
-import { GuardrailCheckResult, GuardrailsClient } from "../guardrails/guardrails-client";
+import { describe, expect, test } from "vitest";
+import { GuardrailsClient } from "../guardrails";
 import type { paths } from "../openapi";
 import { makeBasicMockFetch } from "./fixtures";
 
@@ -24,7 +24,7 @@ test("GuardrailsClient.check() arguements are properly passed to the request", a
     Payload: {},
   }
 
-  await guardrails.check(body.GuardrailID, body.Payload);
+  await guardrails.check(body.Payload, body.GuardrailID);
 
   // @ts-ignore 
   const req = mockFetch.mock.calls[0][0] as Request;
@@ -53,9 +53,8 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
       client: transport,
     })
 
-    const result = await guardrails.check(body.GuardrailID, body.Payload);
+    const result = await guardrails.check(body.Payload, body.GuardrailID);
 
-    expect(result).toBeInstanceOf(GuardrailCheckResult);
     expect(result.passed).toBeTruthy();
   })
 
@@ -71,9 +70,8 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
       client: transport,
     })
 
-    const result = await guardrails.check(body.GuardrailID, body.Payload);
+    const result = await guardrails.check(body.Payload, body.GuardrailID);
 
-    expect(result).toBeInstanceOf(GuardrailCheckResult);
     expect(result.errored).toBeTruthy();
   })
 
@@ -89,9 +87,8 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
       client: transport,
     })
 
-    const result = await guardrails.check(body.GuardrailID, body.Payload);
+    const result = await guardrails.check(body.Payload, body.GuardrailID);
 
-    expect(result).toBeInstanceOf(GuardrailCheckResult);
     expect(result.failed).toBeTruthy();
     expect(result.errored).toBeFalsy();
   })

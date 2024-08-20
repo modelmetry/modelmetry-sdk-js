@@ -49,14 +49,19 @@ export const basicGuardrailExample = async () => {
     },
   })
 
-  console.log(result)
-  // Outputs:
-  // GuardrailCheckResult {
-  //   passed: true,
-  //   errored: false,
-  //   failed: false,
-  //   outcome: 'pass'
-  // }
+  if (result.failed) {
+    // Handle a failed check
+    console.error("Failed check", result)
+  }
+
+  if (result.errored) {
+    // Handle an errored check (an error means an unexpected error occurred, not that the check failed).
+    // By default, an error results in a "passed" check with this errored property set to true.
+    console.warn("Errored check", result)
+  }
+
+  // The check passed, carry on
+  console.info("Passed check", result)
 }
 
 await basicGuardrailExample();
