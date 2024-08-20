@@ -40,7 +40,7 @@ export class Finding {
     this.traceId = traceId;
     this.spanId = spanId;
     this.description = description;
-    this.source = source || "api";
+    this.source = source || "sdk";
     this.comment = comment;
     this.metadata = metadata;
     if (at) {
@@ -55,7 +55,7 @@ export class Finding {
       Value: this.value,
       Comment: this.comment,
       Description: this.description,
-      Source: this.source || "api",
+      Source: this.source || "sdk",
       At: this.at.toISOString(),
       Metadata: this.metadata || {},
       TraceID: this.traceId,

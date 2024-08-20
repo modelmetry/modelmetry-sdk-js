@@ -53,7 +53,7 @@ export interface components {
             ToolCalls?: components["schemas"]["ToolCall"][] | null;
         };
         ChatInput: {
-            Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
+            Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
             Options?: components["schemas"]["Options"];
         };
         CheckPayloadRequestBody: {
@@ -100,8 +100,11 @@ export interface components {
                 [key: string]: unknown;
             };
             Name: string;
-            /** @enum {string|null} */
-            Source?: "annotation" | "api" | "enduser" | "evaluator" | null;
+            /**
+             * @default annotation
+             * @enum {string|null}
+             */
+            Source: "annotation" | "evaluator" | "sdk";
             SpanID?: string | null;
             TraceID?: string | null;
             Value: number | boolean | string;
@@ -211,21 +214,25 @@ export interface components {
         Finding: {
             /** Format: date-time */
             At: string;
+            CheckID?: string;
             Comment: string;
             /** Format: date-time */
             CreatedAt: string;
-            EntryID: string | null;
+            EntryID?: string;
             EvaluatorID: string | null;
             ID: string;
             Metadata: {
                 [key: string]: unknown;
             };
             Name: string;
-            /** @enum {string} */
-            Source: "annotation" | "api" | "enduser" | "evaluator";
-            SpanID: string | null;
+            /**
+             * @default annotation
+             * @enum {string}
+             */
+            Source: "annotation" | "evaluator" | "sdk";
+            SpanID?: string;
             TenantID: string;
-            TraceID: string | null;
+            TraceID?: string;
             /** Format: date-time */
             UpdatedAt: string;
             Value: number | boolean | string;
@@ -356,8 +363,11 @@ export interface components {
                 [key: string]: unknown;
             };
             Name: string;
-            /** @enum {string} */
-            Source: "annotation" | "api" | "enduser" | "evaluator";
+            /**
+             * @default annotation
+             * @enum {string}
+             */
+            Source: "annotation" | "evaluator" | "sdk";
             Value: number | boolean | string;
         };
         Span: {
@@ -389,6 +399,7 @@ export interface components {
             XID: string;
         };
         SummarisedEntry: {
+            CheckID: string | null;
             /** Format: int64 */
             DurationMs: number;
             EvaluatorID: string;

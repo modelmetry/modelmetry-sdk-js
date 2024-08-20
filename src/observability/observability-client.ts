@@ -125,6 +125,8 @@ export class ObservabilityClient {
       // build the batch
       const batch = buildIngestBatchFromTraces(tracesToTransit);
 
+      console.log(JSON.stringify(batch, null, 2));
+
       // store the promise
       const flight = this.client.POST("/signals/ingest/v1", { body: { ...batch } });
       this.flights[batchId] = flight;

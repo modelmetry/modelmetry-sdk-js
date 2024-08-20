@@ -53,6 +53,8 @@ components:
             - "null"
         Options:
           $ref: "#/components/schemas/Options"
+      required:
+        - Messages
       type: object
     CheckPayloadRequestBody:
       additionalProperties: false
@@ -167,11 +169,11 @@ components:
         Name:
           type: string
         Source:
+          default: annotation
           enum:
             - annotation
-            - api
-            - enduser
             - evaluator
+            - sdk
           type:
             - string
             - "null"
@@ -427,15 +429,15 @@ components:
         At:
           format: date-time
           type: string
+        CheckID:
+          type: string
         Comment:
           type: string
         CreatedAt:
           format: date-time
           type: string
         EntryID:
-          type:
-            - string
-            - "null"
+          type: string
         EvaluatorID:
           type:
             - string
@@ -448,22 +450,18 @@ components:
         Name:
           type: string
         Source:
+          default: annotation
           enum:
             - annotation
-            - api
-            - enduser
             - evaluator
+            - sdk
           type: string
         SpanID:
-          type:
-            - string
-            - "null"
+          type: string
         TenantID:
           type: string
         TraceID:
-          type:
-            - string
-            - "null"
+          type: string
         UpdatedAt:
           format: date-time
           type: string
@@ -479,9 +477,6 @@ components:
         - XID
         - Name
         - TenantID
-        - TraceID
-        - SpanID
-        - EntryID
         - Value
         - Source
         - Comment
@@ -806,11 +801,11 @@ components:
         Name:
           type: string
         Source:
+          default: annotation
           enum:
             - annotation
-            - api
-            - enduser
             - evaluator
+            - sdk
           type: string
         Value:
           oneOf:
@@ -909,6 +904,10 @@ components:
     SummarisedEntry:
       additionalProperties: false
       properties:
+        CheckID:
+          type:
+            - string
+            - "null"
         DurationMs:
           format: int64
           type: integer
@@ -942,6 +941,7 @@ components:
       required:
         - ID
         - TenantID
+        - CheckID
         - InstanceID
         - EvaluatorID
         - Outcome

@@ -86,6 +86,7 @@ export abstract class BaseSpan {
       value,
       traceId: this.traceId,
       spanId: this.xid,
+      source: "sdk",
       ...opts,
     });
     this.appendFinding(finding);

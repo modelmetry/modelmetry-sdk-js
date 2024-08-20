@@ -19,6 +19,9 @@ export const example = async () => {
 
   const span1 = trace.span("root.span1", "other", {});
   span1.newEvent("something happened in span1");
+  span1.newFinding("summat", 5.5, {
+    comment: "This is a comment",
+  })
 
   await asyncSleep(50);
 
