@@ -21,14 +21,7 @@ export const basicGuardrailExample = async () => {
     },
   })
 
-  console.log(result)
-  // Outputs:
-  // GuardrailCheckResult {
-  //   passed: true,
-  //   errored: false,
-  //   failed: false,
-  //   outcome: 'pass'
-  // }
+  console.log(JSON.stringify(result, null, 2))
 }
 
 await basicGuardrailExample();
