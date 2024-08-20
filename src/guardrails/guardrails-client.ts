@@ -1,64 +1,49 @@
 import type { Client } from "openapi-fetch";
-import type { GuardrailCheck, paths, Payload } from "../openapi";
+import { type GuardrailCheckResult, newResultFromCheck, newResultFromError } from ".";
+import type { Payload, paths } from "../openapi";
 
 type GuardrailsClientOptions = {
-  tenantId: string;
+  tenantId?: string;
   client: Client<paths>;
 };
 
 export class GuardrailsClient {
-  private tenantId: string;
   private client: Client<paths>;
+  private tenantId?: string;
+
 
   constructor(options: GuardrailsClientOptions) {
-    this.tenantId = options.tenantId;
     this.client = options.client;
+    if (options.tenantId) {
+      this.tenantId = options.tenantId;
+    }
   }
 
   async check(
+    payload: Payload,
     guardrailId: string,
-    payload: Payload
   ): Promise<GuardrailCheckResult> {
     const { data, error } = await this.client.POST("/checks", {
       body: {
         TenantID: this.tenantId,
         GuardrailID: guardrailId,
         Payload: payload,
-      }
-    })
+      },
+    });
 
     if (error) {
-      const res = new GuardrailCheckResult("error")
-      res._error = error
-      return res
+      return newResultFromError(error);
     }
 
     if (!data) {
-      return new GuardrailCheckResult("error")
+      if (error) {
+        return newResultFromError(error);
+      }
+      return newResultFromError(
+        new Error("No data or error returned from API"),
+      );
     }
 
-    return new GuardrailCheckResult(data.Outcome)
-  }
-
-}
-
-export class GuardrailCheckResult {
-  private readonly outcome: GuardrailCheck["Outcome"];
-
-  public readonly passed: boolean = false;
-  public readonly errored: boolean = false;
-  public readonly failed: boolean = false;
-
-  public _error: unknown = null;
-
-  constructor(outcome: GuardrailCheck["Outcome"]) {
-    this.outcome = outcome
-    this.passed = outcome === "pass"
-    this.errored = outcome === "error"
-    this.failed = outcome === "fail"
-  }
-
-  getOutcome() {
-    return this.outcome
+    return newResultFromCheck(data);
   }
 }
