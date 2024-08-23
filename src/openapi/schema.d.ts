@@ -13,7 +13,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Check a payload */
+        /** Check payload */
         post: operations["check-payload"];
         delete?: never;
         options?: never;
@@ -30,7 +30,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Ingest signals (v1) */
+        /** Ingest signals v1 */
         post: operations["ingest-signals-v1"];
         delete?: never;
         options?: never;
@@ -54,7 +54,6 @@ export interface components {
         };
         ChatInput: {
             Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
-            Options?: components["schemas"]["Options"];
         };
         CheckPayloadRequestBody: {
             /**
@@ -68,15 +67,21 @@ export interface components {
         };
         CompletionPayload: {
             Context?: components["schemas"]["CompletionPayloadContext"];
+            Cost?: components["schemas"]["Cost"];
             /** @description Input for completion */
             Input?: components["schemas"]["TextInput"] | components["schemas"]["ChatInput"];
-            Model: string;
-            Options: components["schemas"]["Options"];
+            Options?: components["schemas"]["Options"];
             Output?: components["schemas"]["Output"];
+            Usage?: components["schemas"]["Usage"];
         };
         CompletionPayloadContext: {
             ParsedSystem: string;
             RetrievedItems: components["schemas"]["RetrievedItem"][] | null;
+        };
+        Cost: {
+            Input?: components["schemas"]["Money"];
+            Output?: components["schemas"]["Money"];
+            Total?: components["schemas"]["Money"];
         };
         CreateEventParams: {
             /** Format: date-time */
@@ -238,6 +243,27 @@ export interface components {
             Value: number | boolean | string;
             XID: string;
         };
+        FullTrace: {
+            /** Format: date-time */
+            CreatedAt: string;
+            /** Format: date-time */
+            End: string;
+            Events: components["schemas"]["Event"][] | null;
+            Findings: components["schemas"]["Finding"][] | null;
+            ID: string;
+            Metadata: {
+                [key: string]: unknown;
+            };
+            Name: string;
+            SessionID?: string | null;
+            Spans: components["schemas"]["Span"][] | null;
+            /** Format: date-time */
+            Start: string;
+            TenantID: string;
+            /** Format: date-time */
+            UpdatedAt: string;
+            XID: string;
+        };
         Function: {
             Arguments: unknown;
             Name: string;
@@ -286,6 +312,10 @@ export interface components {
              */
             readonly $schema?: string;
         };
+        Money: {
+            Amount: number;
+            Currency: string;
+        };
         Options: {
             APIKey?: string;
             APIVersion?: string;
@@ -307,6 +337,7 @@ export interface components {
             N?: number;
             /** Format: double */
             PresencePenalty?: number;
+            Provider?: string;
             ResponseFormat?: {
                 [key: string]: unknown;
             };
@@ -336,6 +367,7 @@ export interface components {
         Payload: {
             /** @description Input for completion */
             Input?: components["schemas"]["TextInput"] | components["schemas"]["ChatInput"];
+            Options?: components["schemas"]["Options"];
             Output?: components["schemas"]["Output"];
         };
         RetrievalPayload: {
@@ -411,7 +443,9 @@ export interface components {
             /** Format: double */
             Score: number | null;
             Skip: string;
+            SpanID: string | null;
             TenantID: string;
+            TraceID: string | null;
         };
         SystemMessage: {
             Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
@@ -466,24 +500,16 @@ export interface components {
             UpdatedAt: string;
             XID: string;
         };
-        TraceWithSpans: {
-            /** Format: date-time */
-            CreatedAt: string;
-            /** Format: date-time */
-            End: string;
-            ID: string;
-            Metadata: {
-                [key: string]: unknown;
-            };
-            Name: string;
-            SessionID?: string | null;
-            Spans: components["schemas"]["Span"][] | null;
-            /** Format: date-time */
-            Start: string;
-            TenantID: string;
-            /** Format: date-time */
-            UpdatedAt: string;
-            XID: string;
+        Usage: {
+            Input?: components["schemas"]["UsageValue"];
+            Output?: components["schemas"]["UsageValue"];
+            Total?: components["schemas"]["UsageValue"];
+        };
+        UsageValue: {
+            /** Format: double */
+            Amount: number;
+            /** @default tokens */
+            Unit: string;
         };
         UserMessage: {
             Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;

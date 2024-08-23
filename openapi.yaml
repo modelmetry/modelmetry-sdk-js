@@ -51,8 +51,6 @@ components:
           type:
             - array
             - "null"
-        Options:
-          $ref: "#/components/schemas/Options"
       required:
         - Messages
       type: object
@@ -81,21 +79,20 @@ components:
       properties:
         Context:
           $ref: "#/components/schemas/CompletionPayloadContext"
+        Cost:
+          $ref: "#/components/schemas/Cost"
         Input:
           description: Input for completion
           oneOf:
             - $ref: "#/components/schemas/TextInput"
             - $ref: "#/components/schemas/ChatInput"
           type: object
-        Model:
-          type: string
         Options:
           $ref: "#/components/schemas/Options"
         Output:
           $ref: "#/components/schemas/Output"
-      required:
-        - Model
-        - Options
+        Usage:
+          $ref: "#/components/schemas/Usage"
       type: object
     CompletionPayloadContext:
       additionalProperties: false
@@ -111,6 +108,16 @@ components:
       required:
         - ParsedSystem
         - RetrievedItems
+      type: object
+    Cost:
+      additionalProperties: false
+      properties:
+        Input:
+          $ref: "#/components/schemas/Money"
+        Output:
+          $ref: "#/components/schemas/Money"
+        Total:
+          $ref: "#/components/schemas/Money"
       type: object
     CreateEventParams:
       additionalProperties: false
@@ -486,6 +493,68 @@ components:
         - UpdatedAt
         - CreatedAt
       type: object
+    FullTrace:
+      additionalProperties: false
+      properties:
+        CreatedAt:
+          format: date-time
+          type: string
+        End:
+          format: date-time
+          type: string
+        Events:
+          items:
+            $ref: "#/components/schemas/Event"
+          type:
+            - array
+            - "null"
+        Findings:
+          items:
+            $ref: "#/components/schemas/Finding"
+          type:
+            - array
+            - "null"
+        ID:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Name:
+          type: string
+        SessionID:
+          type:
+            - string
+            - "null"
+        Spans:
+          items:
+            $ref: "#/components/schemas/Span"
+          type:
+            - array
+            - "null"
+        Start:
+          format: date-time
+          type: string
+        TenantID:
+          type: string
+        UpdatedAt:
+          format: date-time
+          type: string
+        XID:
+          type: string
+      required:
+        - Spans
+        - Events
+        - Findings
+        - ID
+        - XID
+        - TenantID
+        - Name
+        - Start
+        - End
+        - Metadata
+        - UpdatedAt
+        - CreatedAt
+      type: object
     Function:
       additionalProperties: false
       properties:
@@ -608,6 +677,19 @@ components:
           readOnly: true
           type: string
       type: object
+    Money:
+      additionalProperties: false
+      properties:
+        Amount:
+          type: number
+        Currency:
+          maxLength: 3
+          minLength: 3
+          type: string
+      required:
+        - Amount
+        - Currency
+      type: object
     Options:
       additionalProperties: false
       properties:
@@ -652,6 +734,8 @@ components:
         PresencePenalty:
           format: double
           type: number
+        Provider:
+          type: string
         ResponseFormat:
           additionalProperties: {}
           type: object
@@ -728,6 +812,8 @@ components:
             - $ref: "#/components/schemas/TextInput"
             - $ref: "#/components/schemas/ChatInput"
           type: object
+        Options:
+          $ref: "#/components/schemas/Options"
         Output:
           $ref: "#/components/schemas/Output"
       type: object
@@ -936,13 +1022,23 @@ components:
             - "null"
         Skip:
           type: string
+        SpanID:
+          type:
+            - string
+            - "null"
         TenantID:
           type: string
+        TraceID:
+          type:
+            - string
+            - "null"
       required:
         - ID
         - TenantID
         - CheckID
         - InstanceID
+        - TraceID
+        - SpanID
         - EvaluatorID
         - Outcome
         - Skip
@@ -1084,53 +1180,28 @@ components:
         - UpdatedAt
         - CreatedAt
       type: object
-    TraceWithSpans:
+    Usage:
       additionalProperties: false
       properties:
-        CreatedAt:
-          format: date-time
-          type: string
-        End:
-          format: date-time
-          type: string
-        ID:
-          type: string
-        Metadata:
-          additionalProperties: {}
-          type: object
-        Name:
-          type: string
-        SessionID:
-          type:
-            - string
-            - "null"
-        Spans:
-          items:
-            $ref: "#/components/schemas/Span"
-          type:
-            - array
-            - "null"
-        Start:
-          format: date-time
-          type: string
-        TenantID:
-          type: string
-        UpdatedAt:
-          format: date-time
-          type: string
-        XID:
+        Input:
+          $ref: "#/components/schemas/UsageValue"
+        Output:
+          $ref: "#/components/schemas/UsageValue"
+        Total:
+          $ref: "#/components/schemas/UsageValue"
+      type: object
+    UsageValue:
+      additionalProperties: false
+      properties:
+        Amount:
+          format: double
+          type: number
+        Unit:
+          default: tokens
           type: string
       required:
-        - Spans
-        - ID
-        - XID
-        - TenantID
-        - Name
-        - Start
-        - End
-        - Metadata
-        - UpdatedAt
-        - CreatedAt
+        - Amount
+        - Unit
       type: object
     UserMessage:
       additionalProperties: false
@@ -1195,7 +1266,7 @@ paths:
           description: Error
       security:
         - apikeyAuth: []
-      summary: Check a payload
+      summary: Check payload
   /signals/ingest/v1:
     post:
       operationId: ingest-signals-v1
@@ -1220,6 +1291,6 @@ paths:
           description: Error
       security:
         - apikeyAuth: []
-      summary: Ingest signals (v1)
+      summary: Ingest signals v1
 servers:
   - url: http://api.modelmetry.com/
