@@ -96,8 +96,9 @@ test("span()", () => {
 
   expect(grandChild.getName()).toBe("grandChild")
   expect(grandChild.getFamilyData()).toEqual({
-    Model: "gpt",
-    Options: {},
+    Options: {
+      Model: "gpt",
+    },
   })
 
 })

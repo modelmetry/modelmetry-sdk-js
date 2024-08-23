@@ -16,7 +16,7 @@ export class Trace {
   private readonly xid: string;
   private readonly tenantId: string;
   private name = "";
-  private metadata: schemas["TraceWithSpans"]["Metadata"] = {};
+  private metadata: schemas["FullTrace"]["Metadata"] = {};
   private startedAt: Date = new Date();
   private endedAt: Date | undefined;
 
@@ -31,7 +31,7 @@ export class Trace {
   }: {
     name: string;
     tenantId: string;
-    metadata?: schemas["TraceWithSpans"]["Metadata"];
+    metadata?: schemas["FullTrace"]["Metadata"];
   }) {
     this.xid = crypto.randomUUID();
     this.tenantId = tenantId;

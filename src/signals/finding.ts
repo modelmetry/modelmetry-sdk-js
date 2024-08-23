@@ -8,7 +8,7 @@ export class Finding {
   private traceId?: string;
   private spanId?: string;
   private description?: string;
-  private source: schemas["Finding"]["Source"] = "api";
+  private source: schemas["Finding"]["Source"] = "sdk";
   private comment?: string;
   private metadata?: schemas["Finding"]["Metadata"];
   private at: Date = new Date();
