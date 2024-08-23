@@ -48,3 +48,4 @@ export type Tool = schemas["Tool"];
 
 export type Function = schemas["Function"];
 
+export const newUsageValue = (amount: number, unit: "tokens" = "tokens") => ({ Amount: amount, Unit: unit });

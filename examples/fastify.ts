@@ -42,7 +42,9 @@ fastify.get("/joke", async function handler(request, reply) {
 
   // when using startSpan, a failing operation will throw its original error
   // and mark the span as errored (severity = `error`)
-  await operationThatWillFail(rootSpan);
+  if (Math.random() > 0.5) {
+    await operationThatWillFail(rootSpan);
+  }
 
   // now let's look at more normal operations
   try {
@@ -93,8 +95,7 @@ const randomTopic = async (topics: string[], parentSpan: Span) => {
 };
 
 const generateJoke = async (topic: string, parentSpan: Span) => {
-  // start the new span manually (without startSpan()), 
-  // which means we need to handle failures and ending ourselves
+  // start the new span manually (without startSpan()), which means we need to handle failures and ending ourselves
   const span = parentSpan.span("generate-joke", "completion", {});
   const model = "gpt-4o-mini";
   const messages: Array<OpenAI.Chat.ChatCompletionMessageParam> = [
@@ -109,19 +110,22 @@ const generateJoke = async (topic: string, parentSpan: Span) => {
   ];
 
   // add the input to the span, as well as the model and the options used
-  span.familyData.Model = model;
-  span.familyData.Options = { MaxTokens: 500 };
-  span.familyData.Input = {
-    Messages: fromOpenaiMessages(messages),
-    Options: { MaxTokens: 500 },
-  }
+  span.setProvider("openai");
+  span.setModel(model);
+  span.setOption("MaxTokens", 500);
+  span.setInputMessages(fromOpenaiMessages(messages))
 
   try {
     const jokeResponse = await openai.chat.completions.create({ max_tokens: 500, model, messages });
     const joke = jokeResponse.choices[0].message.content;
 
     // end the span with the output
-    span.end({ Output: { Text: String(jokeResponse.choices[0].message.content) } });
+    span.setUsage("input", jokeResponse.usage?.prompt_tokens || 0);
+    span.setUsage("output", jokeResponse.usage?.completion_tokens || 0);
+    span.setUsage("total", jokeResponse.usage?.total_tokens || 0);
+
+    span.setOutputText(String(joke));
+    span.end();
 
     return joke;
   } catch (error) {
@@ -133,6 +137,7 @@ const generateJoke = async (topic: string, parentSpan: Span) => {
 
 // Run the server!
 try {
+  console.log("Get a joke at: ", "http://127.0.0.1:3000/joke");
   await fastify.listen({ port: 3000 });
 } catch (err) {
   fastify.log.error(err);
