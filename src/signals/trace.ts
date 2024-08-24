@@ -1,5 +1,5 @@
 import { createSpan, type Span, type SpanTypeMap, startSpan } from ".";
-import type { CompletionPayload, schemas } from "../openapi";
+import type { CompletionFamilyData, schemas } from "../openapi";
 import { getDateMax } from "../utils/dates";
 import { Event } from "./event";
 import { Finding } from "./finding";

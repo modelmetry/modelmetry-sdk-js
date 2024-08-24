@@ -1,4 +1,4 @@
-import type { OtherPayload } from "../openapi";
+import type { OtherFamilyData } from "../openapi";
 import {
   BaseSpan,
   type DerivedBaseSpanArgs
@@ -7,7 +7,7 @@ import {
 export type OtherSpanArgs = DerivedBaseSpanArgs;
 
 export class OtherSpan extends BaseSpan {
-  familyData: OtherPayload = {};
+  familyData: OtherFamilyData = {};
 
   constructor({
     name,

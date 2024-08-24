@@ -1,18 +1,19 @@
 import merge from "lodash.merge";
 import {
-  type CompletionPayload,
+  type CompletionFamilyData,
   type Message,
   newUsageValue,
+  type schemas,
 } from "../openapi";
-import type { RecursivePartial } from "../typings";
+import type { PartialExcept, RecursivePartial } from "../typings";
 import { BaseSpan, type DerivedBaseSpanArgs } from "./span.base";
 
 export type CompletionSpanArgs = DerivedBaseSpanArgs & {
-  options?: CompletionPayload["Options"];
+  options?: CompletionFamilyData["Options"];
 };
 
 export class CompletionSpan extends BaseSpan {
-  familyData: CompletionPayload = {};
+  familyData: CompletionFamilyData = {};
 
   constructor({
     name,
@@ -38,15 +39,15 @@ export class CompletionSpan extends BaseSpan {
   }
 
   setOption<
-    K extends keyof NonNullable<CompletionPayload["Options"]>,
-    V extends NonNullable<CompletionPayload["Options"]>[K],
+    K extends keyof NonNullable<CompletionFamilyData["Options"]>,
+    V extends NonNullable<CompletionFamilyData["Options"]>[K],
   >(key: K, value: V) {
     this.familyData.Options = this.familyData.Options || {};
     this.familyData.Options[key] = value;
     return this;
   }
 
-  unsetOption<K extends keyof NonNullable<CompletionPayload["Options"]>>(
+  unsetOption<K extends keyof NonNullable<CompletionFamilyData["Options"]>>(
     key: K,
   ) {
     this.familyData.Options = this.familyData.Options || {};
@@ -64,7 +65,7 @@ export class CompletionSpan extends BaseSpan {
     return this;
   }
 
-  setInput(input: CompletionPayload["Input"]) {
+  setInput(input: CompletionFamilyData["Input"]) {
     this.familyData.Input = input;
     return this;
   }
@@ -79,7 +80,7 @@ export class CompletionSpan extends BaseSpan {
     return this;
   }
 
-  setOutput(output: CompletionPayload["Output"]) {
+  setOutput(output: CompletionFamilyData["Output"]) {
     this.familyData.Output = output;
     return this;
   }
@@ -137,7 +138,13 @@ export class CompletionSpan extends BaseSpan {
     return this;
   }
 
-  end(data: RecursivePartial<CompletionPayload> = {}) {
+  addDocument(data: PartialExcept<NonNullable<schemas["CompletionFamilyData"]["Documents"]>[number], "Identifier" | "Title" | "ContentType">) {
+    this.familyData.Documents = this.familyData.Documents || [];
+    this.familyData.Documents.push({ ...data });
+    return this;
+  }
+
+  end(data: RecursivePartial<CompletionFamilyData> = {}) {
     this.familyData = merge(this.familyData, data);
     this.maybeSetEndedAtToNow();
     return this;

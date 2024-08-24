@@ -7,14 +7,15 @@ export * from "./schema.d";
 export type schemas = components["schemas"];
 
 export type FamilyData =
-  | schemas["OtherPayload"]
-  | schemas["CompletionPayload"]
-  | schemas["RetrievalPayload"]
-  | schemas["EmbeddingsPayload"];
-export type OtherPayload = schemas["OtherPayload"];
-export type CompletionPayload = schemas["CompletionPayload"];
-export type RetrievalPayload = schemas["RetrievalPayload"];
-export type EmbeddingsPayload = schemas["EmbeddingsPayload"];
+  | schemas["OtherFamilyData"]
+  | schemas["CompletionFamilyData"]
+  | schemas["RetrievalFamilyData"]
+  | schemas["EmbeddingsFamilyData"];
+
+export type OtherFamilyData = schemas["OtherFamilyData"];
+export type CompletionFamilyData = schemas["CompletionFamilyData"];
+export type RetrievalFamilyData = schemas["RetrievalFamilyData"];
+export type EmbeddingsFamilyData = schemas["EmbeddingsFamilyData"];
 
 export type GuardrailCheck = schemas["GuardrailCheck"];
 

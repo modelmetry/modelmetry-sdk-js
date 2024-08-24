@@ -65,18 +65,14 @@ export interface components {
             Payload: components["schemas"]["Payload"];
             TenantID?: string;
         };
-        CompletionPayload: {
-            Context?: components["schemas"]["CompletionPayloadContext"];
+        CompletionFamilyData: {
             Cost?: components["schemas"]["Cost"];
+            Documents?: components["schemas"]["Document"][];
             /** @description Input for completion */
             Input?: components["schemas"]["TextInput"] | components["schemas"]["ChatInput"];
             Options?: components["schemas"]["Options"];
             Output?: components["schemas"]["Output"];
             Usage?: components["schemas"]["Usage"];
-        };
-        CompletionPayloadContext: {
-            ParsedSystem: string;
-            RetrievedItems: components["schemas"]["RetrievedItem"][] | null;
         };
         Cost: {
             Input?: components["schemas"]["Money"];
@@ -112,7 +108,10 @@ export interface components {
             Source: "annotation" | "evaluator" | "sdk";
             SpanID?: string | null;
             TraceID?: string | null;
-            Value: number | boolean | string;
+            Value: number | boolean | string | {
+                Unit: string;
+                Value: number;
+            };
             XID: string;
         };
         CreateSessionParams: {
@@ -157,7 +156,16 @@ export interface components {
             MimeType: string;
             URI: string;
         };
-        EmbeddingsPayload: {
+        Document: {
+            Content?: unknown;
+            ContentType: string;
+            Identifier: string;
+            Metadata?: {
+                [key: string]: unknown;
+            };
+            Title: string;
+        };
+        EmbeddingsFamilyData: {
             Inputs: string[] | null;
             Options: components["schemas"]["Options"];
         };
@@ -240,7 +248,10 @@ export interface components {
             TraceID?: string;
             /** Format: date-time */
             UpdatedAt: string;
-            Value: number | boolean | string;
+            Value: number | boolean | string | {
+                Unit: string;
+                Value: number;
+            };
             XID: string;
         };
         FullTrace: {
@@ -359,7 +370,7 @@ export interface components {
             TopP?: number;
             User?: string;
         };
-        OtherPayload: Record<string, never>;
+        OtherFamilyData: Record<string, never>;
         Output: {
             Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
             Text?: string;
@@ -370,21 +381,13 @@ export interface components {
             Options?: components["schemas"]["Options"];
             Output?: components["schemas"]["Output"];
         };
-        RetrievalPayload: {
+        RetrievalFamilyData: {
+            Documents: components["schemas"]["Document"][] | null;
             Queries: components["schemas"]["RetrievalQuery"][] | null;
-            Retrieved: components["schemas"]["RetrievedItem"][] | null;
         };
         RetrievalQuery: {
-            Embeddings: number[] | null;
-            Name: string;
-        };
-        RetrievedItem: {
-            Content: unknown;
-            ContentType: string;
-            Identifier: string;
-            Metadata: {
-                [key: string]: unknown;
-            };
+            Embeddings?: number[] | null;
+            TextRepresentation: string;
         };
         SimplifiedFinding: {
             /** Format: date-time */
@@ -400,13 +403,16 @@ export interface components {
              * @enum {string}
              */
             Source: "annotation" | "evaluator" | "sdk";
-            Value: number | boolean | string;
+            Value: number | boolean | string | {
+                Unit: string;
+                Value: number;
+            };
         };
         Span: {
-            Completion: components["schemas"]["CompletionPayload"];
+            Completion?: components["schemas"]["CompletionFamilyData"];
             /** Format: date-time */
             CreatedAt: string;
-            Embeddings: components["schemas"]["EmbeddingsPayload"];
+            Embeddings?: components["schemas"]["EmbeddingsFamilyData"];
             /** Format: date-time */
             End: string;
             Events: components["schemas"]["Event"][] | null;
@@ -418,9 +424,9 @@ export interface components {
                 [key: string]: unknown;
             };
             Name: string;
-            Other: components["schemas"]["OtherPayload"];
+            Other?: components["schemas"]["OtherFamilyData"];
             ParentID: string | null;
-            Retrieval: components["schemas"]["RetrievalPayload"];
+            Retrieval?: components["schemas"]["RetrievalFamilyData"];
             Severity: string;
             /** Format: date-time */
             Start: string;

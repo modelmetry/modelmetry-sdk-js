@@ -1,13 +1,13 @@
-import type { EmbeddingsPayload } from "../openapi";
+import type { EmbeddingsFamilyData } from "../openapi";
 import { BaseSpan, type DerivedBaseSpanArgs } from "./span.base";
 
 export type EmbeddingsSpanArgs = DerivedBaseSpanArgs & {
-  inputs?: EmbeddingsPayload["Inputs"];
-  options?: EmbeddingsPayload["Options"];
+  inputs?: EmbeddingsFamilyData["Inputs"];
+  options?: EmbeddingsFamilyData["Options"];
 };
 
 export class EmbeddingsSpan extends BaseSpan {
-  familyData: EmbeddingsPayload = {
+  familyData: EmbeddingsFamilyData = {
     Inputs: [],
     Options: {},
   };

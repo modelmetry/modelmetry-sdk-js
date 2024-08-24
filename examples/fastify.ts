@@ -82,6 +82,13 @@ const loadTopics = async (parentSpan: Span) => {
   return parentSpan.startSpan("load-topics", "retrieval", async (span) => {
     const topics = ["artificial intelligence", "typescript", "statistics"];
     await asyncSleep(Math.floor(Math.random() * 87) + 12);
+    span.addQuery({
+      TextRepresentation: "List of topics",
+      Embeddings: [0.010011, 0.5242323, 0.123131, 0.934242423, 0.12312312, 0.7382137],
+    })
+    for (const topic of topics) {
+      span.addDocument({ Title: topic, ContentType: 'text', Identifier: topic, });
+    }
     return topics;
   })
 };
@@ -114,6 +121,7 @@ const generateJoke = async (topic: string, parentSpan: Span) => {
   span.setModel(model);
   span.setOption("MaxTokens", 500);
   span.setInputMessages(fromOpenaiMessages(messages))
+  span.addDocument({ Title: topic, ContentType: 'text', Identifier: topic, });
 
   try {
     const jokeResponse = await openai.chat.completions.create({ max_tokens: 500, model, messages });

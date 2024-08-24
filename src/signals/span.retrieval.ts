@@ -1,14 +1,15 @@
-import type { RetrievalPayload } from "../openapi";
+import type { RetrievalFamilyData, schemas } from "../openapi";
+import type { PartialExcept } from "../typings";
 import { BaseSpan, type DerivedBaseSpanArgs } from "./span.base";
 
 export type RetrievalSpanArgs = DerivedBaseSpanArgs & {
-  queries?: RetrievalPayload["Queries"];
+  queries?: RetrievalFamilyData["Queries"];
 };
 
 export class RetrievalSpan extends BaseSpan {
-  familyData: RetrievalPayload = {
+  familyData: RetrievalFamilyData = {
     Queries: [],
-    Retrieved: [],
+    Documents: [],
   };
 
   constructor({
@@ -34,8 +35,28 @@ export class RetrievalSpan extends BaseSpan {
     }
   }
 
-  end(retrieved: RetrievalPayload["Retrieved"]) {
-    this.familyData.Retrieved = retrieved || [];
+  addDocument(
+    doc: PartialExcept<
+      NonNullable<RetrievalFamilyData["Documents"]>[number],
+      "Identifier" | "Title" | "ContentType"
+    >,
+  ) {
+    this.familyData.Documents = this.familyData.Documents || [];
+    this.familyData.Documents.push({ ...doc });
+    return this;
+  }
+
+  addQuery(query: NonNullable<RetrievalFamilyData["Queries"]>[number]) {
+    this.familyData.Queries = this.familyData.Queries || [];
+    this.familyData.Queries.push({ ...query });
+  }
+
+  end({ docs }: { docs?: RetrievalFamilyData["Documents"] } = {}) {
+    if (Array.isArray(docs)) {
+      for (const doc of docs) {
+        this.addDocument(doc);
+      }
+    }
     this.maybeSetEndedAtToNow();
     return this;
   }
