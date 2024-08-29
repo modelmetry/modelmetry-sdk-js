@@ -54,7 +54,9 @@ export const example = async () => {
     Output: {
       Text: "Oh hey, let me know if there's anything I can help with!",
     },
-    Model: "openai/gpt-4o-mini",
+    Options: {
+      Model: "openai/gpt-4o-mini",
+    }
   });
   span2.end();
 
