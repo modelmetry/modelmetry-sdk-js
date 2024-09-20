@@ -10,7 +10,7 @@ import { isErrorModel } from "./utils/problems";
 type ModelmetryClientOptions = {
   tenantId: string;
   apikey: string;
-  baseUrl: string;
+  baseUrl?: string;
   fetch?: typeof globalThis.fetch;
   observability?: Omit<ObservabilityClientOptions, "tenantId" | "client">;
 };
@@ -18,7 +18,7 @@ type ModelmetryClientOptions = {
 export class ModelmetryClient {
   private tenantId: string;
   private apikey: string;
-  private baseUrl: string;
+  private baseUrl = "https://api.modelmetry.com";
   private fetch: typeof globalThis.fetch;
   private client: Client<paths>;
 
@@ -40,15 +40,18 @@ export class ModelmetryClient {
     // Initialize the overarching client
     this.tenantId = options.tenantId;
     this.apikey = options.apikey;
-    this.baseUrl = options.baseUrl;
     this.fetch = options.fetch || globalThis.fetch;
+
+    if (options.baseUrl) {
+      this.baseUrl = options.baseUrl
+    }
+
     this.client = createClient<paths>({
-      baseUrl: options.baseUrl,
+      baseUrl: this.baseUrl,
       fetch: this.fetch,
     });
 
     // client middlewares
-    // this.client.use(this.throwOnErrorResponseMiddleware());
     this.client.use(this.authenticateRequestMiddleware());
 
     // Initialize the Guardrails client
@@ -61,7 +64,7 @@ export class ModelmetryClient {
     this._observability = new ObservabilityClient({
       client: this.client,
       tenantId: this.tenantId,
-      ...options.observability || {},
+      ...(options.observability || {}),
     });
   }
 
