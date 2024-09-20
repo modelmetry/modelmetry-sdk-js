@@ -151,10 +151,10 @@ export interface components {
             XID: string;
         };
         DataPart: {
+            Data: string;
             /** @enum {string} */
             Detail?: "auto" | "low" | "high";
             MimeType: string;
-            URI: string;
         };
         Document: {
             Content?: unknown;

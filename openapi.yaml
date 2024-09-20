@@ -290,6 +290,9 @@ components:
     DataPart:
       additionalProperties: false
       properties:
+        Data:
+          contentEncoding: base64
+          type: string
         Detail:
           enum:
             - auto
@@ -298,11 +301,9 @@ components:
           type: string
         MimeType:
           type: string
-        URI:
-          type: string
       required:
         - MimeType
-        - URI
+        - Data
       type: object
     Document:
       additionalProperties: false

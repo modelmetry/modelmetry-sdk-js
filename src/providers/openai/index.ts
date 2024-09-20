@@ -109,8 +109,8 @@ export const fromOpenaiChatCompletionContentPartImage = (
   input: OpenAI.Chat.ChatCompletionContentPartImage,
 ): DataPart => {
   const part: DataPart = {
-    URI: input.image_url.url,
     MimeType: input.type,
+    Data: input.image_url.url,
     Detail: input.image_url.detail,
   }
   return part;
