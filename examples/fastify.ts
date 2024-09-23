@@ -42,7 +42,7 @@ fastify.get("/joke", async function handler(request, reply) {
 
   // when using startSpan, a failing operation will throw its original error
   // and mark the span as errored (severity = `error`)
-  if (Math.random() > 0.5) {
+  if (Math.random() > 0.95) {
     await operationThatWillFail(rootSpan);
   }
 
