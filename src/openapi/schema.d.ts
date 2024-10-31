@@ -295,7 +295,11 @@ export interface components {
             Metadata: {
                 [key: string]: unknown;
             };
-            /** @enum {string} */
+            /**
+             * @description The status of the entry.
+             * @default na
+             * @enum {string}
+             */
             Outcome: "pass" | "fail" | "error";
             Payload: components["schemas"]["Payload"];
             SummarisedEntries: components["schemas"]["SummarisedEntry"][] | null;
@@ -445,9 +449,12 @@ export interface components {
             ID: string;
             InstanceID: string | null;
             Message: string;
-            Outcome: string;
-            /** Format: double */
-            Score: number | null;
+            /**
+             * @description The status of the entry.
+             * @default na
+             * @enum {string}
+             */
+            Outcome: "na" | "pending" | "pass" | "fail" | "error" | "skip";
             Skip: string;
             SpanID: string | null;
             TenantID: string;

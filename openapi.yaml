@@ -615,6 +615,8 @@ components:
           additionalProperties: {}
           type: object
         Outcome:
+          default: na
+          description: The status of the entry.
           enum:
             - pass
             - fail
@@ -709,6 +711,7 @@ components:
         Currency:
           maxLength: 3
           minLength: 3
+          pattern: ^[A-Z]{3}$
           type: string
       required:
         - Amount
@@ -1025,12 +1028,16 @@ components:
         Message:
           type: string
         Outcome:
+          default: na
+          description: The status of the entry.
+          enum:
+            - na
+            - pending
+            - pass
+            - fail
+            - error
+            - skip
           type: string
-        Score:
-          format: double
-          type:
-            - number
-            - "null"
         Skip:
           type: string
         SpanID:
@@ -1054,7 +1061,6 @@ components:
         - Outcome
         - Skip
         - Message
-        - Score
         - Findings
         - DurationMs
       type: object
