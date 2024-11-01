@@ -41,6 +41,8 @@ export const example = async () => {
   await asyncSleep(50);
 
   const span2_2 = span2.span("root.span2.2", "completion", {});
+  span2_2.setInputText("Hello, world! I am a huge fan of your work. I was wondering if you could help me with something.");
+  span2_2.setOutputText("Oh hey, let me know if there's anything I can help with!");
   span2_2.newEvent("something happened in span2.2");
   span2_2.newEvent("something happened again in span2.2");
   await asyncSleep(50);
