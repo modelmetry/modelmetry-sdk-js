@@ -19,7 +19,10 @@ export const example = async () => {
 
   const span1 = trace.span("root.span1", "other", {});
   span1.newEvent("something happened in span1");
-  span1.newFinding("summat", 5.5, {
+
+  // random number between -50 and 100
+  const random = Math.random() * 150 - 50;
+  span1.newFinding("summat", random, {
     comment: "This is a comment",
   })
 
