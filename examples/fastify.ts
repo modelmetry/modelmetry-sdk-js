@@ -80,7 +80,7 @@ const selectRandomTopic = async (parentSpan: Span) => {
 
 const loadTopics = async (parentSpan: Span) => {
   return parentSpan.startSpan("load-topics", "retrieval", async (span) => {
-    const topics = ["artificial intelligence", "typescript", "statistics"];
+    const topics = ["artificial intelligence", "typescript", "statistics", "python", "generative ai", "o11y observability"];
     await asyncSleep(Math.floor(Math.random() * 87) + 12);
     span.addQuery({
       TextRepresentation: "List of topics",
@@ -131,6 +131,9 @@ const generateJoke = async (topic: string, parentSpan: Span) => {
     span.setUsage("input", jokeResponse.usage?.prompt_tokens || 0);
     span.setUsage("output", jokeResponse.usage?.completion_tokens || 0);
     span.setUsage("total", jokeResponse.usage?.total_tokens || 0);
+
+    span.setMetadata("joke", joke);
+    span.setMetadata("len", joke?.length || 0);
 
     span.setOutputText(String(joke));
     span.end();
