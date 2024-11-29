@@ -1,6 +1,6 @@
 import type { Client } from "openapi-fetch";
 import { type GuardrailCheckResult, newResultFromCheck, newResultFromError } from ".";
-import type { Payload, paths } from "../openapi";
+import type { Payload, paths, schemas } from "../openapi";
 
 type GuardrailsClientOptions = {
   tenantId?: string;
@@ -45,5 +45,40 @@ export class GuardrailsClient {
     }
 
     return newResultFromCheck(data);
+  }
+
+  async evaluateByInstance(instanceId: string, payload: schemas["Payload"], opts: {
+    persist?: boolean;
+  }): Promise<schemas["Entry"]> {
+    const { data, error } = await this.client.POST("/evaluations", {
+      body: {
+        TenantID: "",
+        ByInstance: {
+          InstanceID: instanceId,
+          Payload: payload,
+        },
+        Persist: opts.persist || true,
+      }
+    });
+    if (error) {
+      throw error;
+    }
+    return data
+  }
+
+  async evaluateByConfig(config: schemas["EvaluateRequestByConfig"], opts: {
+    persist?: boolean;
+  }): Promise<schemas["Entry"]> {
+    const { data, error } = await this.client.POST("/evaluations", {
+      body: {
+        TenantID: "",
+        Persist: opts.persist || true,
+        ByConfig: config,
+      }
+    });
+    if (error) {
+      throw error;
+    }
+    return data
   }
 }

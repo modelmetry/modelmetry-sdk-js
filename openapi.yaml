@@ -1,5 +1,27 @@
 components:
   schemas:
+    Assessment:
+      additionalProperties: false
+      properties:
+        Action:
+          default: pass
+          enum:
+            - pass
+            - fail
+            - skip
+          type: string
+        Expression:
+          type: string
+        ID:
+          type: string
+        Message:
+          type: string
+      required:
+        - ID
+        - Expression
+        - Action
+        - Message
+      type: object
     AssistantMessage:
       additionalProperties: false
       properties:
@@ -28,6 +50,16 @@ components:
       required:
         - Role
         - Contents
+      type: object
+    AzurePromptShieldsV1Config:
+      additionalProperties: false
+      properties:
+        Endpoint:
+          description: The endpoint of the Azure Prompt Shields API.
+          format: uri
+          type: string
+      required:
+        - Endpoint
       type: object
     ChatInput:
       additionalProperties: false
@@ -184,15 +216,6 @@ components:
             - type: number
             - type: boolean
             - type: string
-            - properties:
-                Unit:
-                  type: string
-                Value:
-                  type: number
-              required:
-                - Value
-                - Unit
-              type: object
         XID:
           type: string
       required:
@@ -338,6 +361,114 @@ components:
         - Inputs
         - Options
       type: object
+    Entry:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/Entry.json
+          format: uri
+          readOnly: true
+          type: string
+        CheckID:
+          type:
+            - string
+            - "null"
+        Config:
+          additionalProperties: {}
+          type: object
+        CreatedAt:
+          format: date-time
+          type: string
+        CreatedBy:
+          type: string
+        DurationMs:
+          format: int64
+          type: integer
+        EvaluatorID:
+          type: string
+        Findings:
+          items:
+            $ref: "#/components/schemas/Finding"
+          type:
+            - array
+            - "null"
+        FinishedAt:
+          format: date-time
+          type:
+            - string
+            - "null"
+        Grading:
+          $ref: "#/components/schemas/GradingConfiguration"
+        ID:
+          type: string
+        InstanceID:
+          type:
+            - string
+            - "null"
+        Message:
+          type: string
+        Metadata:
+          additionalProperties: {}
+          type: object
+        Outcome:
+          default: na
+          description: The status of the entry.
+          enum:
+            - na
+            - pending
+            - pass
+            - fail
+            - error
+            - skip
+          type: string
+        Payload:
+          $ref: "#/components/schemas/Payload"
+        Skip:
+          type: string
+        SpanID:
+          type:
+            - string
+            - "null"
+        StartedAt:
+          format: date-time
+          type: string
+        TenantID:
+          type: string
+        TraceID:
+          type:
+            - string
+            - "null"
+        UpdatedAt:
+          format: date-time
+          type: string
+        UpdatedBy:
+          type: string
+      required:
+        - ID
+        - TenantID
+        - CheckID
+        - InstanceID
+        - TraceID
+        - SpanID
+        - EvaluatorID
+        - Config
+        - Payload
+        - Grading
+        - Outcome
+        - Skip
+        - Message
+        - Findings
+        - Metadata
+        - StartedAt
+        - FinishedAt
+        - DurationMs
+        - UpdatedAt
+        - UpdatedBy
+        - CreatedAt
+        - CreatedBy
+      type: object
     ErrorDetail:
       additionalProperties: false
       properties:
@@ -397,12 +528,76 @@ components:
           format: uri
           type: string
       type: object
+    EvaluateRequestBody:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - http://api.modelmetry.com//schemas/EvaluateRequestBody.json
+          format: uri
+          readOnly: true
+          type: string
+        ByConfig:
+          $ref: "#/components/schemas/EvaluateRequestByConfig"
+        ByEntry:
+          $ref: "#/components/schemas/EvaluateRequestByEntry"
+        ByInstance:
+          $ref: "#/components/schemas/EvaluateRequestByInstance"
+        Persist:
+          type:
+            - boolean
+            - "null"
+        TenantID:
+          type: string
+      required:
+        - TenantID
+      type: object
+    EvaluateRequestByConfig:
+      additionalProperties: false
+      properties:
+        Config:
+          additionalProperties: {}
+          type: object
+        EvaluatorID:
+          type: string
+        Grading:
+          $ref: "#/components/schemas/GradingConfiguration"
+        Payload:
+          $ref: "#/components/schemas/Payload"
+        Secrets:
+          items:
+            type: string
+          type:
+            - array
+            - "null"
+      required:
+        - EvaluatorID
+        - Config
+        - Payload
+      type: object
+    EvaluateRequestByEntry:
+      additionalProperties: false
+      properties:
+        EntryID:
+          type: string
+      required:
+        - EntryID
+      type: object
+    EvaluateRequestByInstance:
+      additionalProperties: false
+      properties:
+        InstanceID:
+          type: string
+        Payload:
+          $ref: "#/components/schemas/Payload"
+      required:
+        - InstanceID
+        - Payload
+      type: object
     Event:
       additionalProperties: false
       properties:
-        At:
-          format: date-time
-          type: string
         CreatedAt:
           format: date-time
           type: string
@@ -438,7 +633,6 @@ components:
         - TenantID
         - Name
         - Metadata
-        - At
         - UpdatedAt
         - CreatedAt
         - TraceID
@@ -448,9 +642,6 @@ components:
     Finding:
       additionalProperties: false
       properties:
-        At:
-          format: date-time
-          type: string
         CheckID:
           type: string
         Comment:
@@ -484,6 +675,8 @@ components:
           type: string
         TraceID:
           type: string
+        Unit:
+          type: string
         UpdatedAt:
           format: date-time
           type: string
@@ -492,28 +685,19 @@ components:
             - type: number
             - type: boolean
             - type: string
-            - properties:
-                Unit:
-                  type: string
-                Value:
-                  type: number
-              required:
-                - Value
-                - Unit
-              type: object
         XID:
           type: string
       required:
         - ID
+        - TenantID
         - XID
         - Name
-        - TenantID
         - Value
+        - Unit
         - Source
         - Comment
         - Metadata
         - EvaluatorID
-        - At
         - UpdatedAt
         - CreatedAt
       type: object
@@ -588,6 +772,72 @@ components:
       required:
         - Name
         - Arguments
+      type: object
+    GoogleDLPPIIDetectorV1Config:
+      additionalProperties: false
+      properties:
+        InfoTypes:
+          description: Info types to detect as per Google Cloud DLP's documentation
+          items:
+            type: string
+          minItems: 1
+          type:
+            - array
+            - "null"
+        MinimumLikelihood:
+          default: LIKELY
+          description: Threshold for detection
+          enum:
+            - VERY_LIKELY
+            - LIKELY
+            - POSSIBLE
+            - UNLIKELY
+            - VERY_UNLIKELY
+          type: string
+      required:
+        - InfoTypes
+        - MinimumLikelihood
+      type: object
+    GoogleTextModerationV1Config:
+      additionalProperties: false
+      properties:
+        Attributes:
+          default: []
+          description: The attributes to check for. An empty list will check for all attributes.
+          items:
+            enum:
+              - TOXICITY
+              - DEROGATORY
+              - VIOLENCE
+              - SEX
+              - INSULT
+              - PROFANITY
+              - THREAT
+              - WEAPONS
+              - PUBLIC_SAFETY
+              - HEALTH
+              - RELIGION
+              - ILLICIT_DRUGS
+              - WAR
+              - FINANCIAL
+              - POLITICAL
+              - LEGAL
+            type: string
+          type:
+            - array
+            - "null"
+      required:
+        - Attributes
+      type: object
+    GradingConfiguration:
+      additionalProperties: false
+      properties:
+        Assessments:
+          items:
+            $ref: "#/components/schemas/Assessment"
+          type: array
+      required:
+        - Assessments
       type: object
     GuardrailCheck:
       additionalProperties: false
@@ -702,6 +952,212 @@ components:
           format: uri
           readOnly: true
           type: string
+      type: object
+    ModelmetryBooleanLLMAsJudgeV1Config:
+      additionalProperties: false
+      properties:
+        FindingName:
+          description: The name of the finding to use for this evaluator's boolean output (e.g., is_threatening, is_about_hotels).
+          type: string
+        Instructions:
+          description: You are an LLM evaluator. We need the guarantee that the output answers what is being asked on the input, please evaluate as False if it doesn't.
+          minLength: 1
+          type: string
+        MaxTokens:
+          default: 8192
+          description: The limit on the number of tokens the entire prompt can be.
+          format: int64
+          type: integer
+        Model:
+          default: openai/gpt-4o-mini
+          description: The model to use.
+          enum:
+            - openai/gpt-4o-mini
+            - openai/gpt-4o
+            - openai/gpt-3.5-turbo
+            - groq/llama3-8b-8192
+            - groq/llama3-70b-8192
+            - groq/mixtral-8x7b-32768
+            - groq/gemma-7b-it
+            - google/gemini-1.5-flash
+            - google/gemini-1.5-pro
+          type: string
+          x-ui-field-type: model-provider-picker
+      required:
+        - Model
+        - Instructions
+        - MaxTokens
+        - FindingName
+      type: object
+    ModelmetryCompetitorBlocklistV1Config:
+      additionalProperties: false
+      properties:
+        CaseSensitivity:
+          default: case_sensitive
+          description: Whether to consider the word's case when matching strings
+          enum:
+            - case_sensitive
+            - case_insensitive
+          type: string
+        Competitors:
+          description: List of competitors to search for
+          items:
+            type: string
+          minItems: 1
+          type:
+            - array
+            - "null"
+        LookIn:
+          default: both
+          description: Where to search for competitor mentions
+          enum:
+            - input
+            - output
+            - both
+          type: string
+      required:
+        - LookIn
+        - Competitors
+        - CaseSensitivity
+      type: object
+    ModelmetryEmotionAnalysisV1Config:
+      additionalProperties: false
+      type: object
+    ModelmetryHTTPRequestV1Config:
+      additionalProperties: false
+      properties:
+        FindingsJSONPath:
+          description: The JSON path to the findings in the response body.
+          type:
+            - string
+            - "null"
+        Headers:
+          additionalProperties:
+            type: string
+          description: A map of headers to include in the request.
+          type: object
+        MessageJSONPath:
+          description: The JSON path to the message in the response body.
+          type:
+            - string
+            - "null"
+        Method:
+          default: POST
+          description: The HTTP method to use for the request.
+          enum:
+            - POST
+          type: string
+        OutcomeJSONPath:
+          description: The JSON path to the outcome in the response body.
+          type:
+            - string
+            - "null"
+        URL:
+          description: The URL to send the HTTP request to.
+          format: uri
+          type: string
+      required:
+        - URL
+        - Method
+        - Headers
+      type: object
+    ModelmetryJSONValidatorV1Config:
+      additionalProperties: false
+      properties:
+        ExpectedJSONSchema:
+          description: The expected JSON schema to validate against
+          type:
+            - string
+            - "null"
+      type: object
+    ModelmetryLanguageDetectorV1Config:
+      additionalProperties: false
+      properties:
+        ConfidenceThreshold:
+          default: 0.2
+          description: Minimum confidence threshold for the language detection. If the confidence is lower than this, the evaluation will be skipped.
+          format: double
+          maximum: 1
+          minimum: 0
+          type: number
+        WordCountThreshold:
+          default: 2
+          description: Minimum number of words to check, as the language detection can be unreliable for very short texts. Texts shorter than the minimum will be skipped.
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - WordCountThreshold
+        - ConfidenceThreshold
+      type: object
+    ModelmetryScoreLLMAsJudgeV1Config:
+      additionalProperties: false
+      properties:
+        FindingName:
+          description: The name of the finding to use for the result (e.g., threatening_level, about_hotel_score).
+          type: string
+        Instructions:
+          description: You are an LLM evaluator. Please score from 0.0 to 1.0 how likely the user is to be satisfied with this answer, from 0.0 being not satisfied at all to 1.0 being completely satisfied.
+          minLength: 1
+          type: string
+        MaxTokens:
+          default: 8192
+          description: The limit on the number of tokens the entire prompt can be.
+          format: int64
+          type: integer
+        Model:
+          default: openai/gpt-4o-mini
+          description: The model to use.
+          enum:
+            - openai/gpt-4o-mini
+            - openai/gpt-4o
+            - openai/gpt-3.5-turbo
+            - groq/llama3-8b-8192
+            - groq/llama3-70b-8192
+            - groq/mixtral-8x7b-32768
+            - groq/gemma-7b-it
+            - google/gemini-1.5-flash
+            - google/gemini-1.5-pro
+          type: string
+          x-ui-field-type: model-provider-picker
+      required:
+        - Model
+        - Instructions
+        - MaxTokens
+        - FindingName
+      type: object
+    ModelmetrySecretDetectorV1Config:
+      additionalProperties: false
+      properties:
+        CustomPatterns:
+          additionalProperties:
+            type: string
+          description: Custom regex patterns to detect secrets
+          type: object
+      type: object
+    ModelmetrySentimentAnalysisV1Config:
+      additionalProperties: false
+      properties:
+        Model:
+          default: openai/gpt-4o-mini
+          description: The model to use.
+          enum:
+            - openai/gpt-4o-mini
+            - openai/gpt-4o
+            - openai/gpt-3.5-turbo
+            - groq/llama3-8b-8192
+            - groq/llama3-70b-8192
+            - groq/mixtral-8x7b-32768
+            - groq/gemma-7b-it
+            - google/gemini-1.5-flash
+            - google/gemini-1.5-pro
+          type: string
+          x-ui-field-type: model-provider-picker
+      required:
+        - Model
+      type: object
+    ModelmetryTextReadabilityV1Config:
+      additionalProperties: false
       type: object
     Money:
       additionalProperties: false
@@ -881,10 +1337,10 @@ components:
     SimplifiedFinding:
       additionalProperties: false
       properties:
-        At:
-          format: date-time
-          type: string
         Comment:
+          type: string
+        CreatedAt:
+          format: date-time
           type: string
         EvaluatorID:
           type:
@@ -907,15 +1363,6 @@ components:
             - type: number
             - type: boolean
             - type: string
-            - properties:
-                Unit:
-                  type: string
-                Value:
-                  type: number
-              required:
-                - Value
-                - Unit
-              type: object
       required:
         - Name
         - Value
@@ -923,7 +1370,7 @@ components:
         - Comment
         - Metadata
         - EvaluatorID
-        - At
+        - CreatedAt
       type: object
     Span:
       additionalProperties: false
@@ -1284,6 +1731,32 @@ paths:
       security:
         - apikeyAuth: []
       summary: Check payload
+  /evaluations:
+    post:
+      operationId: evaluate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvaluateRequestBody"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Entry"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      security:
+        - apikeyAuth: []
+        - bearerAuth: []
+      summary: Evaluate
   /signals/ingest/v1:
     post:
       operationId: ingest-signals-v1

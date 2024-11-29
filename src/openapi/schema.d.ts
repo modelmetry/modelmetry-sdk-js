@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Evaluate */
+        post: operations["evaluate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/signals/ingest/v1": {
         parameters: {
             query?: never;
@@ -42,6 +59,16 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Assessment: {
+            /**
+             * @default pass
+             * @enum {string}
+             */
+            Action: "pass" | "fail" | "skip";
+            Expression: string;
+            ID: string;
+            Message: string;
+        };
         AssistantMessage: {
             Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
             Name?: string;
@@ -51,6 +78,13 @@ export interface components {
              */
             Role: "assistant";
             ToolCalls?: components["schemas"]["ToolCall"][] | null;
+        };
+        AzurePromptShieldsV1Config: {
+            /**
+             * Format: uri
+             * @description The endpoint of the Azure Prompt Shields API.
+             */
+            Endpoint: string;
         };
         ChatInput: {
             Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
@@ -108,10 +142,7 @@ export interface components {
             Source: "annotation" | "evaluator" | "sdk";
             SpanID?: string | null;
             TraceID?: string | null;
-            Value: number | boolean | string | {
-                Unit: string;
-                Value: number;
-            };
+            Value: number | boolean | string;
             XID: string;
         };
         CreateSessionParams: {
@@ -169,6 +200,49 @@ export interface components {
             Inputs: string[] | null;
             Options: components["schemas"]["Options"];
         };
+        Entry: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             */
+            readonly $schema?: string;
+            CheckID: string | null;
+            Config: {
+                [key: string]: unknown;
+            };
+            /** Format: date-time */
+            CreatedAt: string;
+            CreatedBy: string;
+            /** Format: int64 */
+            DurationMs: number;
+            EvaluatorID: string;
+            Findings: components["schemas"]["Finding"][] | null;
+            /** Format: date-time */
+            FinishedAt: string | null;
+            Grading: components["schemas"]["GradingConfiguration"];
+            ID: string;
+            InstanceID: string | null;
+            Message: string;
+            Metadata: {
+                [key: string]: unknown;
+            };
+            /**
+             * @description The status of the entry.
+             * @default na
+             * @enum {string}
+             */
+            Outcome: "na" | "pending" | "pass" | "fail" | "error" | "skip";
+            Payload: components["schemas"]["Payload"];
+            Skip: string;
+            SpanID: string | null;
+            /** Format: date-time */
+            StartedAt: string;
+            TenantID: string;
+            TraceID: string | null;
+            /** Format: date-time */
+            UpdatedAt: string;
+            UpdatedBy: string;
+        };
         ErrorDetail: {
             /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
             location?: string;
@@ -206,9 +280,35 @@ export interface components {
              */
             type: string;
         };
+        EvaluateRequestBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             */
+            readonly $schema?: string;
+            ByConfig?: components["schemas"]["EvaluateRequestByConfig"];
+            ByEntry?: components["schemas"]["EvaluateRequestByEntry"];
+            ByInstance?: components["schemas"]["EvaluateRequestByInstance"];
+            Persist?: boolean | null;
+            TenantID: string;
+        };
+        EvaluateRequestByConfig: {
+            Config: {
+                [key: string]: unknown;
+            };
+            EvaluatorID: string;
+            Grading?: components["schemas"]["GradingConfiguration"];
+            Payload: components["schemas"]["Payload"];
+            Secrets?: string[] | null;
+        };
+        EvaluateRequestByEntry: {
+            EntryID: string;
+        };
+        EvaluateRequestByInstance: {
+            InstanceID: string;
+            Payload: components["schemas"]["Payload"];
+        };
         Event: {
-            /** Format: date-time */
-            At: string;
             /** Format: date-time */
             CreatedAt: string;
             EntryID: string | null;
@@ -225,8 +325,6 @@ export interface components {
             XID: string;
         };
         Finding: {
-            /** Format: date-time */
-            At: string;
             CheckID?: string;
             Comment: string;
             /** Format: date-time */
@@ -246,12 +344,10 @@ export interface components {
             SpanID?: string;
             TenantID: string;
             TraceID?: string;
+            Unit: string;
             /** Format: date-time */
             UpdatedAt: string;
-            Value: number | boolean | string | {
-                Unit: string;
-                Value: number;
-            };
+            Value: number | boolean | string;
             XID: string;
         };
         FullTrace: {
@@ -278,6 +374,26 @@ export interface components {
         Function: {
             Arguments: unknown;
             Name: string;
+        };
+        GoogleDLPPIIDetectorV1Config: {
+            /** @description Info types to detect as per Google Cloud DLP's documentation */
+            InfoTypes: string[] | null;
+            /**
+             * @description Threshold for detection
+             * @default LIKELY
+             * @enum {string}
+             */
+            MinimumLikelihood: "VERY_LIKELY" | "LIKELY" | "POSSIBLE" | "UNLIKELY" | "VERY_UNLIKELY";
+        };
+        GoogleTextModerationV1Config: {
+            /**
+             * @description The attributes to check for. An empty list will check for all attributes.
+             * @default []
+             */
+            Attributes: ("TOXICITY" | "DEROGATORY" | "VIOLENCE" | "SEX" | "INSULT" | "PROFANITY" | "THREAT" | "WEAPONS" | "PUBLIC_SAFETY" | "HEALTH" | "RELIGION" | "ILLICIT_DRUGS" | "WAR" | "FINANCIAL" | "POLITICAL" | "LEGAL")[];
+        };
+        GradingConfiguration: {
+            Assessments: components["schemas"]["Assessment"][];
         };
         GuardrailCheck: {
             /**
@@ -327,6 +443,115 @@ export interface components {
              */
             readonly $schema?: string;
         };
+        ModelmetryBooleanLLMAsJudgeV1Config: {
+            /** @description The name of the finding to use for this evaluator's boolean output (e.g., is_threatening, is_about_hotels). */
+            FindingName: string;
+            /** @description You are an LLM evaluator. We need the guarantee that the output answers what is being asked on the input, please evaluate as False if it doesn't. */
+            Instructions: string;
+            /**
+             * Format: int64
+             * @description The limit on the number of tokens the entire prompt can be.
+             * @default 8192
+             */
+            MaxTokens: number;
+            /**
+             * @description The model to use.
+             * @default openai/gpt-4o-mini
+             * @enum {string}
+             */
+            Model: "openai/gpt-4o-mini" | "openai/gpt-4o" | "openai/gpt-3.5-turbo" | "groq/llama3-8b-8192" | "groq/llama3-70b-8192" | "groq/mixtral-8x7b-32768" | "groq/gemma-7b-it" | "google/gemini-1.5-flash" | "google/gemini-1.5-pro";
+        };
+        ModelmetryCompetitorBlocklistV1Config: {
+            /**
+             * @description Whether to consider the word's case when matching strings
+             * @default case_sensitive
+             * @enum {string}
+             */
+            CaseSensitivity: "case_sensitive" | "case_insensitive";
+            /** @description List of competitors to search for */
+            Competitors: string[] | null;
+            /**
+             * @description Where to search for competitor mentions
+             * @default both
+             * @enum {string}
+             */
+            LookIn: "input" | "output" | "both";
+        };
+        ModelmetryEmotionAnalysisV1Config: Record<string, never>;
+        ModelmetryHTTPRequestV1Config: {
+            /** @description The JSON path to the findings in the response body. */
+            FindingsJSONPath?: string | null;
+            /** @description A map of headers to include in the request. */
+            Headers: {
+                [key: string]: string | undefined;
+            };
+            /** @description The JSON path to the message in the response body. */
+            MessageJSONPath?: string | null;
+            /**
+             * @description The HTTP method to use for the request.
+             * @default POST
+             * @enum {string}
+             */
+            Method: "POST";
+            /** @description The JSON path to the outcome in the response body. */
+            OutcomeJSONPath?: string | null;
+            /**
+             * Format: uri
+             * @description The URL to send the HTTP request to.
+             */
+            URL: string;
+        };
+        ModelmetryJSONValidatorV1Config: {
+            /** @description The expected JSON schema to validate against */
+            ExpectedJSONSchema?: string | null;
+        };
+        ModelmetryLanguageDetectorV1Config: {
+            /**
+             * Format: double
+             * @description Minimum confidence threshold for the language detection. If the confidence is lower than this, the evaluation will be skipped.
+             * @default 0.2
+             */
+            ConfidenceThreshold: number;
+            /**
+             * Format: int64
+             * @description Minimum number of words to check, as the language detection can be unreliable for very short texts. Texts shorter than the minimum will be skipped.
+             * @default 2
+             */
+            WordCountThreshold: number;
+        };
+        ModelmetryScoreLLMAsJudgeV1Config: {
+            /** @description The name of the finding to use for the result (e.g., threatening_level, about_hotel_score). */
+            FindingName: string;
+            /** @description You are an LLM evaluator. Please score from 0.0 to 1.0 how likely the user is to be satisfied with this answer, from 0.0 being not satisfied at all to 1.0 being completely satisfied. */
+            Instructions: string;
+            /**
+             * Format: int64
+             * @description The limit on the number of tokens the entire prompt can be.
+             * @default 8192
+             */
+            MaxTokens: number;
+            /**
+             * @description The model to use.
+             * @default openai/gpt-4o-mini
+             * @enum {string}
+             */
+            Model: "openai/gpt-4o-mini" | "openai/gpt-4o" | "openai/gpt-3.5-turbo" | "groq/llama3-8b-8192" | "groq/llama3-70b-8192" | "groq/mixtral-8x7b-32768" | "groq/gemma-7b-it" | "google/gemini-1.5-flash" | "google/gemini-1.5-pro";
+        };
+        ModelmetrySecretDetectorV1Config: {
+            /** @description Custom regex patterns to detect secrets */
+            CustomPatterns?: {
+                [key: string]: string | undefined;
+            };
+        };
+        ModelmetrySentimentAnalysisV1Config: {
+            /**
+             * @description The model to use.
+             * @default openai/gpt-4o-mini
+             * @enum {string}
+             */
+            Model: "openai/gpt-4o-mini" | "openai/gpt-4o" | "openai/gpt-3.5-turbo" | "groq/llama3-8b-8192" | "groq/llama3-70b-8192" | "groq/mixtral-8x7b-32768" | "groq/gemma-7b-it" | "google/gemini-1.5-flash" | "google/gemini-1.5-pro";
+        };
+        ModelmetryTextReadabilityV1Config: Record<string, never>;
         Money: {
             Amount: number;
             Currency: string;
@@ -394,9 +619,9 @@ export interface components {
             TextRepresentation: string;
         };
         SimplifiedFinding: {
-            /** Format: date-time */
-            At: string;
             Comment: string;
+            /** Format: date-time */
+            CreatedAt: string;
             EvaluatorID: string | null;
             Metadata: {
                 [key: string]: unknown;
@@ -407,10 +632,7 @@ export interface components {
              * @enum {string}
              */
             Source: "annotation" | "evaluator" | "sdk";
-            Value: number | boolean | string | {
-                Unit: string;
-                Value: number;
-            };
+            Value: number | boolean | string;
         };
         Span: {
             Completion?: components["schemas"]["CompletionFamilyData"];
@@ -564,6 +786,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GuardrailCheck"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    evaluate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvaluateRequestBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Entry"];
                 };
             };
             /** @description Error */

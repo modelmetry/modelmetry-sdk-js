@@ -6,6 +6,8 @@ export * from "./schema.d";
 // export common types
 export type schemas = components["schemas"];
 
+export type Entry = schemas["Entry"];
+
 export type FamilyData =
   | schemas["OtherFamilyData"]
   | schemas["CompletionFamilyData"]
