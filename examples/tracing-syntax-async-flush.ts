@@ -68,3 +68,4 @@ export const example = async () => {
 };
 
 await example();
+process.exit(0);
