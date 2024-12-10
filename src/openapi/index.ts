@@ -1,7 +1,7 @@
 import type { components } from "./schema.d";
-import type openai from "openai";
 
 export * from "./schema.d";
+export * from "./message.utils";
 
 // export common types
 export type schemas = components["schemas"];
@@ -25,19 +25,18 @@ export type ErrorModel = schemas["ErrorModel"];
 
 export type Payload = schemas["Payload"];
 
-export type Input = NonNullable<schemas["Payload"]["Input"]>;
-
-export type ChatInput = schemas["ChatInput"];
-
-export type TextInput = schemas["TextInput"];
-
-export type Output = schemas["Output"];
+export type CompletionPayload = NonNullable<Payload["Completion"]>
 
 export type Message =
   | schemas["SystemMessage"]
   | schemas["UserMessage"]
   | schemas["AssistantMessage"]
   | schemas["ToolMessage"];
+
+export type SystemMessage = schemas["SystemMessage"];
+export type UserMessage = schemas["UserMessage"];
+export type AssistantMessage = schemas["AssistantMessage"];
+export type ToolMessage = schemas["ToolMessage"];
 
 export type Options = schemas["Options"];
 

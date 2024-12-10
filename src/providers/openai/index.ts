@@ -83,7 +83,6 @@ export const fromOpenaiToolCall = (
   return call;
 }
 
-// ChatCompletionContentPart = ChatCompletionContentPartText | ChatCompletionContentPartImage;
 export const fromOpenaiChatCompletionContentPart = (
   input: OpenAI.Chat.ChatCompletionContentPart,
 ): Part => {

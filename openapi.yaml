@@ -32,9 +32,7 @@ components:
               - $ref: "#/components/schemas/TextPart"
               - $ref: "#/components/schemas/DataPart"
             type: object
-          type:
-            - array
-            - "null"
+          type: array
         Name:
           type: string
         Role:
@@ -61,31 +59,6 @@ components:
       required:
         - Endpoint
       type: object
-    ChatInput:
-      additionalProperties: false
-      properties:
-        Messages:
-          items:
-            description: Represents a completion message.
-            discriminator:
-              mapping:
-                assistant: "#/components/schemas/AssistantMessage"
-                system: "#/components/schemas/SystemMessage"
-                tool: "#/components/schemas/ToolMessage"
-                user: "#/components/schemas/UserMessage"
-              propertyName: Role
-            oneOf:
-              - $ref: "#/components/schemas/SystemMessage"
-              - $ref: "#/components/schemas/UserMessage"
-              - $ref: "#/components/schemas/AssistantMessage"
-              - $ref: "#/components/schemas/ToolMessage"
-            type: object
-          type:
-            - array
-            - "null"
-      required:
-        - Messages
-      type: object
     CheckPayloadRequestBody:
       additionalProperties: false
       properties:
@@ -106,6 +79,33 @@ components:
         - GuardrailID
         - Payload
       type: object
+    Completion:
+      additionalProperties: false
+      properties:
+        Messages:
+          items:
+            description: Represents a completion message.
+            discriminator:
+              mapping:
+                assistant: "#/components/schemas/AssistantMessage"
+                system: "#/components/schemas/SystemMessage"
+                tool: "#/components/schemas/ToolMessage"
+                user: "#/components/schemas/UserMessage"
+              propertyName: Role
+            oneOf:
+              - $ref: "#/components/schemas/SystemMessage"
+              - $ref: "#/components/schemas/UserMessage"
+              - $ref: "#/components/schemas/AssistantMessage"
+              - $ref: "#/components/schemas/ToolMessage"
+            type: object
+          type: array
+        Options:
+          additionalProperties: {}
+          type: object
+      required:
+        - Options
+        - Messages
+      type: object
     CompletionFamilyData:
       additionalProperties: false
       properties:
@@ -115,16 +115,25 @@ components:
           items:
             $ref: "#/components/schemas/Document"
           type: array
-        Input:
-          description: Input for completion
-          oneOf:
-            - $ref: "#/components/schemas/TextInput"
-            - $ref: "#/components/schemas/ChatInput"
-          type: object
+        Messages:
+          items:
+            description: Represents a completion message.
+            discriminator:
+              mapping:
+                assistant: "#/components/schemas/AssistantMessage"
+                system: "#/components/schemas/SystemMessage"
+                tool: "#/components/schemas/ToolMessage"
+                user: "#/components/schemas/UserMessage"
+              propertyName: Role
+            oneOf:
+              - $ref: "#/components/schemas/SystemMessage"
+              - $ref: "#/components/schemas/UserMessage"
+              - $ref: "#/components/schemas/AssistantMessage"
+              - $ref: "#/components/schemas/ToolMessage"
+            type: object
+          type: array
         Options:
           $ref: "#/components/schemas/Options"
-        Output:
-          $ref: "#/components/schemas/Output"
         Usage:
           $ref: "#/components/schemas/Usage"
       type: object
@@ -1008,17 +1017,50 @@ components:
             - array
             - "null"
         LookIn:
-          default: both
+          default: "*"
           description: Where to search for competitor mentions
           enum:
-            - input
-            - output
-            - both
+            - user
+            - assistant
+            - "*"
           type: string
       required:
         - LookIn
         - Competitors
         - CaseSensitivity
+      type: object
+    ModelmetryEmbeddingsSimilarityV1Config:
+      additionalProperties: false
+      properties:
+        ExtractionMethod:
+          description: The method to use for extracting text strings.
+          enum:
+            - last-user-vs-assistant
+            - reference-vs-all-messages
+            - reference-vs-last-assistant
+            - reference-vs-last-user
+          type: string
+        Model:
+          description: The model to use for encoding text to embeddings (only OpenAI models at this stage).
+          enum:
+            - openai/text-embedding-3-small
+            - openai/text-embedding-3-large
+          type: string
+        ReferenceText:
+          description: The reference text to compare against. Be as detailed or as general as you like.
+          type: string
+        Strategy:
+          description: The strategy to use for computing similarity.
+          enum:
+            - cosine
+            - euclidean-distance
+            - dot-product
+          type: string
+      required:
+        - Model
+        - ReferenceText
+        - Strategy
+        - ExtractionMethod
       type: object
     ModelmetryEmotionAnalysisV1Config:
       additionalProperties: false
@@ -1066,9 +1108,7 @@ components:
       properties:
         ExpectedJSONSchema:
           description: The expected JSON schema to validate against
-          type:
-            - string
-            - "null"
+          type: string
       type: object
     ModelmetryLanguageDetectorV1Config:
       additionalProperties: false
@@ -1153,11 +1193,57 @@ components:
             - google/gemini-1.5-pro
           type: string
           x-ui-field-type: model-provider-picker
+        Scope:
+          enum:
+            - interaction.last
+            - user.last
+            - assistant.last
+            - last
+          type: string
       required:
         - Model
+        - Scope
       type: object
     ModelmetryTextReadabilityV1Config:
       additionalProperties: false
+      properties:
+        Scope:
+          default: last
+          enum:
+            - interaction.last
+            - user.last
+            - assistant.last
+            - last
+          type: string
+      required:
+        - Scope
+      type: object
+    ModelmetryToolsCalledV1Config:
+      additionalProperties: false
+      properties:
+        Expectations:
+          items:
+            $ref: "#/components/schemas/ModelmetryToolsCalledV1Expectation"
+        Expections:
+          description: The expected JSON schema to validate against
+          items:
+            $ref: "#/components/schemas/ModelmetryToolsCalledV1Expectation"
+          type: array
+      required:
+        - Expections
+      type: object
+    ModelmetryToolsCalledV1Expectation:
+      additionalProperties: false
+      properties:
+        Expression:
+          description: The expression to check the tool call's arguements against
+          type: string
+        Name:
+          description: The name of the tool call
+          type: string
+      required:
+        - Name
+        - Expression
       type: object
     Money:
       additionalProperties: false
@@ -1261,44 +1347,11 @@ components:
     OtherFamilyData:
       additionalProperties: false
       type: object
-    Output:
-      additionalProperties: false
-      properties:
-        Messages:
-          items:
-            description: Represents a completion message.
-            discriminator:
-              mapping:
-                assistant: "#/components/schemas/AssistantMessage"
-                system: "#/components/schemas/SystemMessage"
-                tool: "#/components/schemas/ToolMessage"
-                user: "#/components/schemas/UserMessage"
-              propertyName: Role
-            oneOf:
-              - $ref: "#/components/schemas/SystemMessage"
-              - $ref: "#/components/schemas/UserMessage"
-              - $ref: "#/components/schemas/AssistantMessage"
-              - $ref: "#/components/schemas/ToolMessage"
-            type: object
-          type:
-            - array
-            - "null"
-        Text:
-          type: string
-      type: object
     Payload:
       additionalProperties: false
       properties:
-        Input:
-          description: Input for completion
-          oneOf:
-            - $ref: "#/components/schemas/TextInput"
-            - $ref: "#/components/schemas/ChatInput"
-          type: object
-        Options:
-          $ref: "#/components/schemas/Options"
-        Output:
-          $ref: "#/components/schemas/Output"
+        Completion:
+          $ref: "#/components/schemas/Completion"
       type: object
     RetrievalFamilyData:
       additionalProperties: false
@@ -1521,9 +1574,7 @@ components:
               - $ref: "#/components/schemas/TextPart"
               - $ref: "#/components/schemas/DataPart"
             type: object
-          type:
-            - array
-            - "null"
+          type: array
         Name:
           type: string
         Role:
@@ -1533,14 +1584,6 @@ components:
       required:
         - Role
         - Contents
-      type: object
-    TextInput:
-      additionalProperties: false
-      properties:
-        Text:
-          type: string
-      required:
-        - Text
       type: object
     TextPart:
       additionalProperties: false
@@ -1589,9 +1632,7 @@ components:
               - $ref: "#/components/schemas/TextPart"
               - $ref: "#/components/schemas/DataPart"
             type: object
-          type:
-            - array
-            - "null"
+          type: array
         Role:
           enum:
             - tool
@@ -1677,9 +1718,7 @@ components:
               - $ref: "#/components/schemas/TextPart"
               - $ref: "#/components/schemas/DataPart"
             type: object
-          type:
-            - array
-            - "null"
+          type: array
         Name:
           type: string
         Role:

@@ -70,7 +70,7 @@ export interface components {
             Message: string;
         };
         AssistantMessage: {
-            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
+            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[];
             Name?: string;
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -86,9 +86,6 @@ export interface components {
              */
             Endpoint: string;
         };
-        ChatInput: {
-            Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
-        };
         CheckPayloadRequestBody: {
             /**
              * Format: uri
@@ -99,13 +96,17 @@ export interface components {
             Payload: components["schemas"]["Payload"];
             TenantID?: string;
         };
+        Completion: {
+            Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[];
+            Options: {
+                [key: string]: unknown;
+            };
+        };
         CompletionFamilyData: {
             Cost?: components["schemas"]["Cost"];
             Documents?: components["schemas"]["Document"][];
-            /** @description Input for completion */
-            Input?: components["schemas"]["TextInput"] | components["schemas"]["ChatInput"];
+            Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[];
             Options?: components["schemas"]["Options"];
-            Output?: components["schemas"]["Output"];
             Usage?: components["schemas"]["Usage"];
         };
         Cost: {
@@ -472,10 +473,29 @@ export interface components {
             Competitors: string[] | null;
             /**
              * @description Where to search for competitor mentions
-             * @default both
+             * @default *
              * @enum {string}
              */
-            LookIn: "input" | "output" | "both";
+            LookIn: "user" | "assistant" | "*";
+        };
+        ModelmetryEmbeddingsSimilarityV1Config: {
+            /**
+             * @description The method to use for extracting text strings.
+             * @enum {string}
+             */
+            ExtractionMethod: "last-user-vs-assistant" | "reference-vs-all-messages" | "reference-vs-last-assistant" | "reference-vs-last-user";
+            /**
+             * @description The model to use for encoding text to embeddings (only OpenAI models at this stage).
+             * @enum {string}
+             */
+            Model: "openai/text-embedding-3-small" | "openai/text-embedding-3-large";
+            /** @description The reference text to compare against. Be as detailed or as general as you like. */
+            ReferenceText: string;
+            /**
+             * @description The strategy to use for computing similarity.
+             * @enum {string}
+             */
+            Strategy: "cosine" | "euclidean-distance" | "dot-product";
         };
         ModelmetryEmotionAnalysisV1Config: Record<string, never>;
         ModelmetryHTTPRequestV1Config: {
@@ -503,7 +523,7 @@ export interface components {
         };
         ModelmetryJSONValidatorV1Config: {
             /** @description The expected JSON schema to validate against */
-            ExpectedJSONSchema?: string | null;
+            ExpectedJSONSchema?: string;
         };
         ModelmetryLanguageDetectorV1Config: {
             /**
@@ -550,8 +570,27 @@ export interface components {
              * @enum {string}
              */
             Model: "openai/gpt-4o-mini" | "openai/gpt-4o" | "openai/gpt-3.5-turbo" | "groq/llama3-8b-8192" | "groq/llama3-70b-8192" | "groq/mixtral-8x7b-32768" | "groq/gemma-7b-it" | "google/gemini-1.5-flash" | "google/gemini-1.5-pro";
+            /** @enum {string} */
+            Scope: "interaction.last" | "user.last" | "assistant.last" | "last";
         };
-        ModelmetryTextReadabilityV1Config: Record<string, never>;
+        ModelmetryTextReadabilityV1Config: {
+            /**
+             * @default last
+             * @enum {string}
+             */
+            Scope: "interaction.last" | "user.last" | "assistant.last" | "last";
+        };
+        ModelmetryToolsCalledV1Config: {
+            Expectations?: unknown;
+            /** @description The expected JSON schema to validate against */
+            Expections: components["schemas"]["ModelmetryToolsCalledV1Expectation"][];
+        };
+        ModelmetryToolsCalledV1Expectation: {
+            /** @description The expression to check the tool call's arguements against */
+            Expression: string;
+            /** @description The name of the tool call */
+            Name: string;
+        };
         Money: {
             Amount: number;
             Currency: string;
@@ -600,15 +639,8 @@ export interface components {
             User?: string;
         };
         OtherFamilyData: Record<string, never>;
-        Output: {
-            Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[] | null;
-            Text?: string;
-        };
         Payload: {
-            /** @description Input for completion */
-            Input?: components["schemas"]["TextInput"] | components["schemas"]["ChatInput"];
-            Options?: components["schemas"]["Options"];
-            Output?: components["schemas"]["Output"];
+            Completion?: components["schemas"]["Completion"];
         };
         RetrievalFamilyData: {
             Documents: components["schemas"]["Document"][] | null;
@@ -683,16 +715,13 @@ export interface components {
             TraceID: string | null;
         };
         SystemMessage: {
-            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
+            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[];
             Name?: string;
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             Role: "system";
-        };
-        TextInput: {
-            Text: string;
         };
         TextPart: {
             Text: string;
@@ -709,7 +738,7 @@ export interface components {
             Type: "function";
         };
         ToolMessage: {
-            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
+            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[];
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
@@ -747,7 +776,7 @@ export interface components {
             Unit: string;
         };
         UserMessage: {
-            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[] | null;
+            Contents: (components["schemas"]["TextPart"] | components["schemas"]["DataPart"])[];
             Name?: string;
             /**
              * @description discriminator enum property added by openapi-typescript
