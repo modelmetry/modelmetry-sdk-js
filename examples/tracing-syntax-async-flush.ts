@@ -33,6 +33,17 @@ export const example = async () => {
     const traceName = TRACE_NAMES[Math.floor(Math.random() * TRACE_NAMES.length)];
     const trace = obs.newTrace(traceName)
 
+    const s1 = trace.span("llm.generate", "completion", {})
+    s1.setModel("openai/gpt-4o-mini")
+    s1.setProvider("openai")
+    s1.setUserInputText("Hello, world! I am a huge fan of your work. I was wondering if you could help me with something.")
+    s1.setModelOutputText("Oh hey, let me know if there's anything I can help with!")
+    s1.newEvent("something happened in span")
+    s1.newFinding("accuracy", Math.random())
+    s1.newFinding("precision", Math.random())
+    await asyncSleep(20)
+    s1.end()
+
     // loop to generate some spans
     // spans between 1 and 12
     const SPAN_NUM = Math.floor(Math.random() * 12) + 1;

@@ -120,7 +120,7 @@ const generateJoke = async (topic: string, parentSpan: Span) => {
   span.setProvider("openai");
   span.setModel(model);
   span.setOption("MaxTokens", 500);
-  span.setInputMessages(fromOpenaiMessages(messages))
+  span.setCompletionMessages(fromOpenaiMessages(messages))
   span.addDocument({ Title: topic, ContentType: 'text', Identifier: topic, });
 
   try {
@@ -135,7 +135,7 @@ const generateJoke = async (topic: string, parentSpan: Span) => {
     span.setMetadata("joke", joke);
     span.setMetadata("len", joke?.length || 0);
 
-    span.setOutputText(String(joke));
+    span.setModelOutputText(String(joke));
     span.end();
 
     return joke;

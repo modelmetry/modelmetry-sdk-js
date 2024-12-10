@@ -2,7 +2,10 @@ import merge from "lodash.merge";
 import {
   type CompletionFamilyData,
   type Message,
+  newAssistantMessage,
   newUsageValue,
+  newUserMessage,
+  Payload,
   type schemas,
 } from "../openapi";
 import type { PartialExcept, RecursivePartial } from "../typings";
@@ -65,34 +68,20 @@ export class CompletionSpan extends BaseSpan {
     return this;
   }
 
-  setInput(input: CompletionFamilyData["Input"]) {
-    this.familyData.Input = input;
+  setUserInputText(text: string) {
+    this.familyData.Messages = this.familyData.Messages || []
+    this.familyData.Messages.push(newUserMessage(text));
     return this;
   }
 
-  setInputText(input: string) {
-    this.setInput({ Text: input });
+  setModelOutputText(text: string) {
+    this.familyData.Messages = this.familyData.Messages || []
+    this.familyData.Messages.push(newAssistantMessage(text));
     return this;
   }
 
-  setInputMessages(messages: Message[]) {
-    this.setInput({ Messages: messages });
-    return this;
-  }
-
-  setOutput(output: CompletionFamilyData["Output"]) {
-    this.familyData.Output = output;
-    return this;
-  }
-
-  setOutputText(output: string) {
-    this.familyData.Output = this.familyData.Output || {};
-    this.familyData.Output.Text = output;
-    return this;
-  }
-
-  setOutputMessages(messages: Message[]) {
-    this.setOutput({ Messages: messages });
+  setCompletionMessages(messages: Message[]) {
+    this.familyData.Messages = messages
     return this;
   }
 

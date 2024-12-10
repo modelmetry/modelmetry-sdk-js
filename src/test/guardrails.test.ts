@@ -21,10 +21,15 @@ test("GuardrailsClient.check() arguements are properly passed to the request", a
   const body = {
     GuardrailID: "grd_1234",
     TenantID: "ten_1234",
-    Payload: {},
+    Payload: {
+      Completion: {
+        Messages: [{ Role: "user", Contents: [{ Text: "Something" }] }],
+        Options: {},
+      }
+    },
   }
 
-  await guardrails.check(body.Payload, body.GuardrailID);
+  await guardrails.checkText("Something", body.GuardrailID);
 
   // @ts-ignore 
   const req = mockFetch.mock.calls[0][0] as Request;
@@ -38,7 +43,12 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
   const body = {
     GuardrailID: "grd_1234",
     TenantID: "ten_1234",
-    Payload: {},
+    Payload: {
+      Completion: {
+        Messages: [{ Role: "user", Contents: [{ Text: "Something" }] }],
+        Options: {},
+      }
+    },
   }
 
   test("when the request is successful", async () => {
@@ -53,7 +63,7 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
       client: transport,
     })
 
-    const result = await guardrails.check(body.Payload, body.GuardrailID);
+    const result = await guardrails.checkText("Something", body.GuardrailID);
 
     expect(result.passed).toBeTruthy();
   })
@@ -70,7 +80,7 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
       client: transport,
     })
 
-    const result = await guardrails.check(body.Payload, body.GuardrailID);
+    const result = await guardrails.checkText("Something", body.GuardrailID);
 
     expect(result.errored).toBeTruthy();
   })
@@ -87,7 +97,7 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
       client: transport,
     })
 
-    const result = await guardrails.check(body.Payload, body.GuardrailID);
+    const result = await guardrails.checkText("Something", body.GuardrailID);
 
     expect(result.failed).toBeTruthy();
     expect(result.errored).toBeFalsy();

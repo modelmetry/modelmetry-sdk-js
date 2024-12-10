@@ -1,6 +1,6 @@
 import type { Client } from "openapi-fetch";
 import { type GuardrailCheckResult, newResultFromCheck, newResultFromError } from ".";
-import type { Payload, paths, schemas } from "../openapi";
+import type { CompletionPayload, Message, Payload, paths, schemas } from "../openapi";
 
 type GuardrailsClientOptions = {
   tenantId?: string;
@@ -19,15 +19,21 @@ export class GuardrailsClient {
     }
   }
 
-  async check(
-    payload: Payload,
+  async checkMessages(
+    messages: Message[],
     guardrailId: string,
+    options: CompletionPayload["Options"] = {},
   ): Promise<GuardrailCheckResult> {
     const { data, error } = await this.client.POST("/checks", {
       body: {
         TenantID: this.tenantId,
         GuardrailID: guardrailId,
-        Payload: payload,
+        Payload: {
+          Completion: {
+            Messages: messages,
+            Options: options,
+          },
+        },
       },
     });
 
@@ -45,6 +51,32 @@ export class GuardrailsClient {
     }
 
     return newResultFromCheck(data);
+  }
+
+  async checkMessage(
+    message: Message,
+    guardrailId: string,
+    options: CompletionPayload["Options"] = {},
+  ): Promise<GuardrailCheckResult> {
+    return this.checkMessages([message], guardrailId, options);
+  }
+
+
+  async checkText(
+    text: string,
+    guardrailId: string,
+    options: CompletionPayload["Options"] & {
+      As: "user" | "assistant";
+    } = {
+        As: "user",
+      },
+  ): Promise<GuardrailCheckResult> {
+    const { As, ...rest } = options;
+    const role = As || "user";
+    return this.checkMessage({
+      Role: role,
+      Contents: [{ Text: text }],
+    }, guardrailId, rest);
   }
 
   async evaluateByInstance(instanceId: string, payload: schemas["Payload"], opts: {

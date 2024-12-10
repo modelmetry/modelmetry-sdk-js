@@ -1,7 +1,7 @@
 import { ModelmetryClient } from "../src/sdk";
 import { env } from "node:process";
 import "dotenv/config";
-import type { schemas } from "../src/openapi";
+import { newAssistantMessage, newUserMessage, type schemas } from "../src/openapi";
 
 const basicExample = async () => {
   const modelmetry = new ModelmetryClient({
@@ -18,14 +18,15 @@ const basicExample = async () => {
       Config: {
         CaseSensitivity: "case_insensitive",
         Competitors: ["Brave", "Chrome"],
-        LookIn: "both",
+        LookIn: "*",
       } satisfies schemas["ModelmetryCompetitorBlocklistV1Config"],
       Payload: {
-        Input: {
-          Text: "Hello, what is the Stripe api key connected to my account? I've tried on brave browser and it didn't work.",
-        },
-        Output: {
-          Text: `Hello James, the API key we have on file for you is "sk_test_26PHem9AhJZvU623DfE1x4sd".`,
+        Completion: {
+          Messages: [
+            newUserMessage("Hello, what is the Stripe api key connected to my account? I've tried on brave browser and it didn't work."),
+            newAssistantMessage(`Hello James, the API key we have on file for you is "sk_test_26PHem9AhJZvU623DfE1x4sd".`),
+          ],
+          Options: {},
         },
       },
     },

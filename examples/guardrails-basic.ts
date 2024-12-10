@@ -1,6 +1,7 @@
 import { ModelmetryClient } from "../src/sdk"
 import { env } from "node:process";
 import 'dotenv/config'
+import { newAssistantMessage, newUserMessage } from "../src/openapi";
 
 
 export const basicGuardrailExample = async () => {
@@ -16,21 +17,17 @@ export const basicGuardrailExample = async () => {
     baseUrl: HOST,
   })
 
-  const result = await modelmetry.guardrails().check({
-    Input: {
-      Text: "Can you please let me know what the employee handbook say about vacation time during a busy period?",
-    },
-    Output: {
-      Text: `Thank you for your inquiry about vacation time during a busy period. While the employee handbook generally outlines our vacation policies, it's important to note that specific circumstances might require flexibility.
+  const result = await modelmetry.guardrails().checkMessages([
+    newUserMessage("Can you please let me know what the employee handbook say about vacation time during a busy period?"),
+    newAssistantMessage(`Thank you for your inquiry about vacation time during a busy period. While the employee handbook generally outlines our vacation policies, it's important to note that specific circumstances might require flexibility.
 
 Here's a general guideline:
 * Prioritization: If your department is experiencing an exceptionally busy period, we encourage you to prioritize your vacation requests to minimize disruption to our operations.
 * Manager Approval: All vacation requests must be approved by your direct manager. They will consider your department's workload and staffing needs when making a decision.
 * Flexibility: In some cases, we may be able to accommodate your vacation request during a busy period, but this will depend on the specific circumstances.
 
-If you have any further questions or concerns, please don't hesitate to reach out to your manager or HR representative.`,
-    },
-  }, GUARDRAIL_ID)
+If you have any further questions or concerns, please don't hesitate to reach out to your manager or HR representative.`)
+  ], GUARDRAIL_ID)
 
   console.log(JSON.stringify(result, null, 2))
 

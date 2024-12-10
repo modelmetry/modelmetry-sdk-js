@@ -31,10 +31,15 @@ test("should set the x-api-key header with the provided api key for outgoing Req
   const body = {
     GuardrailID: "grd_1234",
     TenantID: "ten_1234",
-    Payload: {},
+    Payload: {
+      Completion: {
+        Messages: [{ Role: "user", Contents: [{ Text: "Something" }] }],
+        Options: {},
+      }
+    },
   }
 
-  await guardrails.check(body.Payload, body.GuardrailID);
+  await guardrails.checkText("Something", body.GuardrailID);
 
   // @ts-ignore
   const req = mockFetch.mock.calls[0][0] as Request;
