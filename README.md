@@ -41,13 +41,7 @@ export const basicGuardrailExample = async () => {
 
   const response = await openai.chat.completions.create({ max_tokens: 500, model, messages });
   const responseText = jokeResponse.choices[0].message.content;
-  const result = await modelmetry.guardrails().check("grd_jaohzgcbd5hbt1grwmvp", {
-    Input: {
-      Text: {
-        Text: responseText,
-      },
-    },
-  })
+  const result = await modelmetry.guardrails().checkText(responseText, "grd_jaohzgcbd5hbt1grwmvp")
 
   if (result.failed) {
     // Handle a failed check
@@ -98,7 +92,12 @@ fastify.get("/joke", async function handler(request, reply) {
 function runTheSecondTask(stuff, trace) {
   // this time, use a callback to create a child span's scope,
   // and it will end automatically when the callback returns
-  return trace.startSpan("task-2", "other", async (span) => {
+  return trace.startSpan("task-2", "completion", async (span) => {
+    // you can set the the completion's input and output with utility methods
+    span.setUserInputText("Hello, world! I am a huge fan of your work. I was wondering if you could help me with something.")
+    span.setModelOutputText("Oh hey, let me know if there's anything I can help with!")
+    // or, you can also set messages directly for more complex use cases
+    span.setCompletionMessages(fromOpenaiMessages(messages))
     span.setAttribute("user", "user-123");
     span.setAttribute("stuff", stuff);
     // do something
