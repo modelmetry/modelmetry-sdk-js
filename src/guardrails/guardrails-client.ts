@@ -1,6 +1,6 @@
 import type { Client } from "openapi-fetch";
 import { type GuardrailCheckResult, newResultFromCheck, newResultFromError } from ".";
-import type { CompletionPayload, Message, Payload, paths, schemas } from "../openapi";
+import type { CompletionPayload, Message, paths, schemas } from "../openapi";
 
 type GuardrailsClientOptions = {
   tenantId?: string;

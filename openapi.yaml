@@ -79,33 +79,6 @@ components:
         - GuardrailID
         - Payload
       type: object
-    Completion:
-      additionalProperties: false
-      properties:
-        Messages:
-          items:
-            description: Represents a completion message.
-            discriminator:
-              mapping:
-                assistant: "#/components/schemas/AssistantMessage"
-                system: "#/components/schemas/SystemMessage"
-                tool: "#/components/schemas/ToolMessage"
-                user: "#/components/schemas/UserMessage"
-              propertyName: Role
-            oneOf:
-              - $ref: "#/components/schemas/SystemMessage"
-              - $ref: "#/components/schemas/UserMessage"
-              - $ref: "#/components/schemas/AssistantMessage"
-              - $ref: "#/components/schemas/ToolMessage"
-            type: object
-          type: array
-        Options:
-          additionalProperties: {}
-          type: object
-      required:
-        - Options
-        - Messages
-      type: object
     CompletionFamilyData:
       additionalProperties: false
       properties:
@@ -136,6 +109,33 @@ components:
           $ref: "#/components/schemas/Options"
         Usage:
           $ref: "#/components/schemas/Usage"
+      type: object
+    CompletionPayload:
+      additionalProperties: false
+      properties:
+        Messages:
+          items:
+            description: Represents a completion message.
+            discriminator:
+              mapping:
+                assistant: "#/components/schemas/AssistantMessage"
+                system: "#/components/schemas/SystemMessage"
+                tool: "#/components/schemas/ToolMessage"
+                user: "#/components/schemas/UserMessage"
+              propertyName: Role
+            oneOf:
+              - $ref: "#/components/schemas/SystemMessage"
+              - $ref: "#/components/schemas/UserMessage"
+              - $ref: "#/components/schemas/AssistantMessage"
+              - $ref: "#/components/schemas/ToolMessage"
+            type: object
+          type: array
+        Options:
+          additionalProperties: {}
+          type: object
+      required:
+        - Options
+        - Messages
       type: object
     Cost:
       additionalProperties: false
@@ -1351,7 +1351,7 @@ components:
       additionalProperties: false
       properties:
         Completion:
-          $ref: "#/components/schemas/Completion"
+          $ref: "#/components/schemas/CompletionPayload"
       type: object
     RetrievalFamilyData:
       additionalProperties: false

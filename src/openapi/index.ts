@@ -25,7 +25,7 @@ export type ErrorModel = schemas["ErrorModel"];
 
 export type Payload = schemas["Payload"];
 
-export type CompletionPayload = NonNullable<Payload["Completion"]>
+export type CompletionPayload = schemas["CompletionPayload"]
 
 export type Message =
   | schemas["SystemMessage"]

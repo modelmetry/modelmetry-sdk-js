@@ -96,18 +96,18 @@ export interface components {
             Payload: components["schemas"]["Payload"];
             TenantID?: string;
         };
-        Completion: {
-            Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[];
-            Options: {
-                [key: string]: unknown;
-            };
-        };
         CompletionFamilyData: {
             Cost?: components["schemas"]["Cost"];
             Documents?: components["schemas"]["Document"][];
             Messages?: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[];
             Options?: components["schemas"]["Options"];
             Usage?: components["schemas"]["Usage"];
+        };
+        CompletionPayload: {
+            Messages: (components["schemas"]["SystemMessage"] | components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"] | components["schemas"]["ToolMessage"])[];
+            Options: {
+                [key: string]: unknown;
+            };
         };
         Cost: {
             Input?: components["schemas"]["Money"];
@@ -503,7 +503,7 @@ export interface components {
             FindingsJSONPath?: string | null;
             /** @description A map of headers to include in the request. */
             Headers: {
-                [key: string]: string | undefined;
+                [key: string]: string;
             };
             /** @description The JSON path to the message in the response body. */
             MessageJSONPath?: string | null;
@@ -560,7 +560,7 @@ export interface components {
         ModelmetrySecretDetectorV1Config: {
             /** @description Custom regex patterns to detect secrets */
             CustomPatterns?: {
-                [key: string]: string | undefined;
+                [key: string]: string;
             };
         };
         ModelmetrySentimentAnalysisV1Config: {
@@ -640,7 +640,7 @@ export interface components {
         };
         OtherFamilyData: Record<string, never>;
         Payload: {
-            Completion?: components["schemas"]["Completion"];
+            Completion?: components["schemas"]["CompletionPayload"];
         };
         RetrievalFamilyData: {
             Documents: components["schemas"]["Document"][] | null;

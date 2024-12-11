@@ -5,7 +5,6 @@ import {
   newAssistantMessage,
   newUsageValue,
   newUserMessage,
-  Payload,
   type schemas,
 } from "../openapi";
 import type { PartialExcept, RecursivePartial } from "../typings";
