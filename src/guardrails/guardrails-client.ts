@@ -19,11 +19,37 @@ export class GuardrailsClient {
     }
   }
 
+  async checkText(
+    text: string,
+    options: CompletionPayload["Options"] & {
+      as?: "user" | "assistant";
+      guardrailId: string;
+    },
+  ): Promise<GuardrailCheckResult> {
+    const { as, guardrailId, ...rest } = options;
+    const role = as || "user";
+    return this.checkMessage({
+      Role: role,
+      Contents: [{ Text: text }],
+    }, { ...rest, guardrailId });
+  }
+
+  async checkMessage(
+    message: Message,
+    options: CompletionPayload["Options"] & {
+      guardrailId: string;
+    },
+  ): Promise<GuardrailCheckResult> {
+    return this.checkMessages([message], options);
+  }
+
   async checkMessages(
     messages: Message[],
-    guardrailId: string,
-    options: CompletionPayload["Options"] = {},
+    options: CompletionPayload["Options"] & {
+      guardrailId: string;
+    },
   ): Promise<GuardrailCheckResult> {
+    const { guardrailId, ...rest } = options;
     const { data, error } = await this.client.POST("/checks", {
       body: {
         TenantID: this.tenantId,
@@ -31,7 +57,7 @@ export class GuardrailsClient {
         Payload: {
           Completion: {
             Messages: messages,
-            Options: options,
+            Options: rest,
           },
         },
       },
@@ -51,32 +77,6 @@ export class GuardrailsClient {
     }
 
     return newResultFromCheck(data);
-  }
-
-  async checkMessage(
-    message: Message,
-    guardrailId: string,
-    options: CompletionPayload["Options"] = {},
-  ): Promise<GuardrailCheckResult> {
-    return this.checkMessages([message], guardrailId, options);
-  }
-
-
-  async checkText(
-    text: string,
-    guardrailId: string,
-    options: CompletionPayload["Options"] & {
-      As: "user" | "assistant";
-    } = {
-        As: "user",
-      },
-  ): Promise<GuardrailCheckResult> {
-    const { As, ...rest } = options;
-    const role = As || "user";
-    return this.checkMessage({
-      Role: role,
-      Contents: [{ Text: text }],
-    }, guardrailId, rest);
   }
 
   async evaluateByInstance(instanceId: string, payload: schemas["Payload"], opts: {

@@ -27,7 +27,9 @@ Here's a general guideline:
 * Flexibility: In some cases, we may be able to accommodate your vacation request during a busy period, but this will depend on the specific circumstances.
 
 If you have any further questions or concerns, please don't hesitate to reach out to your manager or HR representative.`)
-  ], GUARDRAIL_ID)
+  ], {
+    guardrailId: GUARDRAIL_ID
+  })
 
   console.log(JSON.stringify(result, null, 2))
 

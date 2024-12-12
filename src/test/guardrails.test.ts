@@ -29,7 +29,7 @@ test("GuardrailsClient.check() arguements are properly passed to the request", a
     },
   }
 
-  await guardrails.checkText("Something", body.GuardrailID);
+  await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
 
   // @ts-ignore 
   const req = mockFetch.mock.calls[0][0] as Request;
@@ -63,7 +63,7 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
       client: transport,
     })
 
-    const result = await guardrails.checkText("Something", body.GuardrailID);
+    const result = await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
 
     expect(result.passed).toBeTruthy();
   })
@@ -80,7 +80,7 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
       client: transport,
     })
 
-    const result = await guardrails.checkText("Something", body.GuardrailID);
+    const result = await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
 
     expect(result.errored).toBeTruthy();
   })
@@ -97,7 +97,7 @@ describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async
       client: transport,
     })
 
-    const result = await guardrails.checkText("Something", body.GuardrailID);
+    const result = await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
 
     expect(result.failed).toBeTruthy();
     expect(result.errored).toBeFalsy();

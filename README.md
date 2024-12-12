@@ -41,7 +41,7 @@ export const basicGuardrailExample = async () => {
 
   const response = await openai.chat.completions.create({ max_tokens: 500, model, messages });
   const responseText = jokeResponse.choices[0].message.content;
-  const result = await modelmetry.guardrails().checkText(responseText, "grd_jaohzgcbd5hbt1grwmvp")
+  const result = await modelmetry.guardrails().checkText(responseText, { guardrailId: "grd_jaohzgcbd5hbt1grwmvp" })
 
   if (result.failed) {
     // Handle a failed check
