@@ -49,10 +49,15 @@ export const fromOpenaiMessage = (
       const message: schemas["ToolMessage"] = {
         Role: "tool",
         ToolCallID: input.tool_call_id,
-        Contents: [
-          { Text: input.content },
-        ],
+        Contents: [],
       }
+
+      if (typeof input.content === "string") {
+        message.Contents.push({ Text: String(input.content) });
+      } else {
+        message.Contents = input.content.map(fromOpenaiChatCompletionContentPart);
+      }
+
       return message;
     }
 
