@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "description": "The Modelmetry JS/Ts SDK allows developers to easily integrate Modelmetry's advanced guardrails and monitoring capabilities into their LLM-powered applications.",
+  "homepage": "https://modelmetry.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/modelmetry/modelmetry-sdk-js.git"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
