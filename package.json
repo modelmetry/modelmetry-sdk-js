@@ -1,49 +1,51 @@
 {
-  "name": "@modelmetry/sdk",
-  "version": "1.0.0",
-  "type": "module",
-  "description": "The Modelmetry JS/Ts SDK allows developers to easily integrate Modelmetry's advanced guardrails and monitoring capabilities into their LLM-powered applications.",
-  "homepage": "https://modelmetry.com",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/modelmetry/modelmetry-sdk-js.git"
-  },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "prebuild": "rm -rf dist && vitest run",
-    "build": "tsc",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run",
-    "openapi:gen": "openapi-typescript ./openapi.yaml -o ./src/openapi/schema.d.ts",
-    "bump:patch": "npm version patch",
-    "bump:minor": "npm version minor",
-    "bump:major": "npm version major",
-    "pub": "rm -rf dist && vitest run && tsc && npm publish"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "openai": "^4.76.0",
-    "openapi-fetch": "^0.13.3"
-  },
-  "devDependencies": {
-    "@types/lodash.merge": "^4.6.9",
-    "@types/node": "^22.10.1",
-    "@vitest/ui": "^2.1.8",
-    "dotenv": "^16.4.7",
-    "fastify": "^5.1.0",
-    "lodash.merge": "^4.6.2",
-    "openapi-typescript": "^7.4.4",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.3",
-    "vitest": "^2.1.8",
-    "rollup": "^4.28.1"
-  },
-  "files": [
-    "/dist"
-  ]
+    "name": "@modelmetry/sdk",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "The Modelmetry JS/Ts SDK allows developers to easily integrate Modelmetry's advanced guardrails and monitoring capabilities into their LLM-powered applications.",
+    "homepage": "https://modelmetry.com",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/modelmetry/modelmetry-sdk-js.git"
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "prebuild": "rm -rf dist && vitest run",
+        "build": "tsc",
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:run": "vitest run",
+        "openapi:gen": "openapi-typescript ./openapi.yaml -o ./src/openapi/schema.d.ts",
+        "bump:patch": "npm version patch",
+        "bump:minor": "npm version minor",
+        "bump:major": "npm version major",
+        "pub": "rm -rf dist && vitest run && tsc && npm publish"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "openapi-fetch": "^0.13.3"
+    },
+    "peerDependencies": {
+        "openai": "^4.76.0"
+    },
+    "devDependencies": {
+        "@types/lodash.merge": "^4.6.9",
+        "@types/node": "^22.10.1",
+        "@vitest/ui": "^2.1.8",
+        "dotenv": "^16.4.7",
+        "fastify": "^5.1.0",
+        "lodash.merge": "^4.6.2",
+        "openapi-typescript": "^7.4.4",
+        "tsx": "^4.19.2",
+        "typescript": "^5.7.2",
+        "vite": "^6.0.3",
+        "vitest": "^2.1.8",
+        "rollup": "^4.28.1"
+    },
+    "files": [
+        "/dist"
+    ]
 }
