@@ -9,10 +9,10 @@ export type schemas = components["schemas"];
 export type Entry = schemas["Entry"];
 
 export type FamilyData =
-  | schemas["OtherFamilyData"]
-  | schemas["CompletionFamilyData"]
-  | schemas["RetrievalFamilyData"]
-  | schemas["EmbeddingsFamilyData"];
+    | schemas["OtherFamilyData"]
+    | schemas["CompletionFamilyData"]
+    | schemas["RetrievalFamilyData"]
+    | schemas["EmbeddingsFamilyData"];
 
 export type OtherFamilyData = schemas["OtherFamilyData"];
 export type CompletionFamilyData = schemas["CompletionFamilyData"];
@@ -28,10 +28,10 @@ export type Payload = schemas["Payload"];
 export type CompletionPayload = schemas["CompletionPayload"]
 
 export type Message =
-  | schemas["SystemMessage"]
-  | schemas["UserMessage"]
-  | schemas["AssistantMessage"]
-  | schemas["ToolMessage"];
+    | schemas["SystemMessage"]
+    | schemas["UserMessage"]
+    | schemas["AssistantMessage"]
+    | schemas["ToolMessage"];
 
 export type SystemMessage = schemas["SystemMessage"];
 export type UserMessage = schemas["UserMessage"];

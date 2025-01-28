@@ -18,34 +18,34 @@ export type IngestBatch = schemas["IngestSignalsV1RequestBody"];
 export type Span = RetrievalSpan | EmbeddingsSpan | CompletionSpan | OtherSpan;
 
 export const isSpan = (span: unknown): span is Span => {
-  return (
-    span instanceof RetrievalSpan ||
-    span instanceof EmbeddingsSpan ||
-    span instanceof CompletionSpan ||
-    span instanceof OtherSpan
-  );
+    return (
+        span instanceof RetrievalSpan ||
+        span instanceof EmbeddingsSpan ||
+        span instanceof CompletionSpan ||
+        span instanceof OtherSpan
+    );
 };
 
 export const SpanLookup = {
-  completion: {
-    class: CompletionSpan,
-  },
-  embeddings: {
-    class: EmbeddingsSpan,
-  },
-  retrieval: {
-    class: RetrievalSpan,
-  },
-  other: {
-    class: OtherSpan,
-  },
+    completion: {
+        class: CompletionSpan,
+    },
+    embeddings: {
+        class: EmbeddingsSpan,
+    },
+    retrieval: {
+        class: RetrievalSpan,
+    },
+    other: {
+        class: OtherSpan,
+    },
 };
 
 export type LookupSpan = typeof SpanLookup;
 
 export type SpanTypeMap = {
-  completion: CompletionSpan;
-  embeddings: EmbeddingsSpan;
-  retrieval: RetrievalSpan;
-  other: OtherSpan;
+    completion: CompletionSpan;
+    embeddings: EmbeddingsSpan;
+    retrieval: RetrievalSpan;
+    other: OtherSpan;
 };

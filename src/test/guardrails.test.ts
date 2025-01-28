@@ -6,101 +6,101 @@ import { makeBasicMockFetch } from "./fixtures";
 
 test("GuardrailsClient.check() arguements are properly passed to the request", async () => {
 
-  const mockFetch = makeBasicMockFetch();
+    const mockFetch = makeBasicMockFetch();
 
-  const transport = createClient<paths>({
-    baseUrl: "http://localhost:8888/",
-    fetch: mockFetch,
-  });
+    const transport = createClient<paths>({
+        baseUrl: "http://localhost:8888/",
+        fetch: mockFetch,
+    });
 
-  const guardrails = new GuardrailsClient({
-    tenantId: "ten_1234",
-    client: transport,
-  })
+    const guardrails = new GuardrailsClient({
+        tenantId: "ten_1234",
+        client: transport,
+    })
 
-  const body = {
-    GuardrailID: "grd_1234",
-    TenantID: "ten_1234",
-    Payload: {
-      Completion: {
-        Messages: [{ Role: "user", Contents: [{ Text: "Something" }] }],
-        Options: {},
-      }
-    },
-  }
+    const body = {
+        GuardrailID: "grd_1234",
+        TenantID: "ten_1234",
+        Payload: {
+            Completion: {
+                Messages: [{ Role: "user", Contents: [{ Text: "Something" }] }],
+                Options: {},
+            }
+        },
+    }
 
-  await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
+    await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
 
-  // @ts-ignore 
-  const req = mockFetch.mock.calls[0][0] as Request;
-  expect(req).toBeInstanceOf(Request);
-  expect(req.url).toBe("http://localhost:8888/checks");
-  expect(await req.json()).toEqual(body);
+    // @ts-ignore 
+    const req = mockFetch.mock.calls[0][0] as Request;
+    expect(req).toBeInstanceOf(Request);
+    expect(req.url).toBe("http://localhost:8888/checks");
+    expect(await req.json()).toEqual(body);
 });
 
 describe("GuardrailsClient.check() returns a GuardrailCheckResult object", async () => {
 
-  const body = {
-    GuardrailID: "grd_1234",
-    TenantID: "ten_1234",
-    Payload: {
-      Completion: {
-        Messages: [{ Role: "user", Contents: [{ Text: "Something" }] }],
-        Options: {},
-      }
-    },
-  }
+    const body = {
+        GuardrailID: "grd_1234",
+        TenantID: "ten_1234",
+        Payload: {
+            Completion: {
+                Messages: [{ Role: "user", Contents: [{ Text: "Something" }] }],
+                Options: {},
+            }
+        },
+    }
 
-  test("when the request is successful", async () => {
-    const mockFetch = makeBasicMockFetch(new Response(JSON.stringify({ Outcome: "pass" }), { status: 200 }));
-    const transport = createClient<paths>({
-      baseUrl: "http://localhost:8888/",
-      fetch: mockFetch,
-    });
+    test("when the request is successful", async () => {
+        const mockFetch = makeBasicMockFetch(new Response(JSON.stringify({ Outcome: "pass" }), { status: 200 }));
+        const transport = createClient<paths>({
+            baseUrl: "http://localhost:8888/",
+            fetch: mockFetch,
+        });
 
-    const guardrails = new GuardrailsClient({
-      tenantId: "ten_1234",
-      client: transport,
+        const guardrails = new GuardrailsClient({
+            tenantId: "ten_1234",
+            client: transport,
+        })
+
+        const result = await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
+
+        expect(result.passed).toBeTruthy();
     })
 
-    const result = await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
+    test("when the request errors", async () => {
+        const mockFetch = makeBasicMockFetch(new Response(JSON.stringify({}), { status: 500 }));
+        const transport = createClient<paths>({
+            baseUrl: "http://localhost:8888/",
+            fetch: mockFetch,
+        });
 
-    expect(result.passed).toBeTruthy();
-  })
+        const guardrails = new GuardrailsClient({
+            tenantId: "ten_1234",
+            client: transport,
+        })
 
-  test("when the request errors", async () => {
-    const mockFetch = makeBasicMockFetch(new Response(JSON.stringify({}), { status: 500 }));
-    const transport = createClient<paths>({
-      baseUrl: "http://localhost:8888/",
-      fetch: mockFetch,
-    });
+        const result = await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
 
-    const guardrails = new GuardrailsClient({
-      tenantId: "ten_1234",
-      client: transport,
+        expect(result.errored).toBeTruthy();
     })
 
-    const result = await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
+    test("when the request fails", async () => {
+        const mockFetch = makeBasicMockFetch(new Response(JSON.stringify({ Outcome: "fail" }), { status: 200 }));
+        const transport = createClient<paths>({
+            baseUrl: "http://localhost:8888/",
+            fetch: mockFetch,
+        });
 
-    expect(result.errored).toBeTruthy();
-  })
+        const guardrails = new GuardrailsClient({
+            tenantId: "ten_1234",
+            client: transport,
+        })
 
-  test("when the request fails", async () => {
-    const mockFetch = makeBasicMockFetch(new Response(JSON.stringify({ Outcome: "fail" }), { status: 200 }));
-    const transport = createClient<paths>({
-      baseUrl: "http://localhost:8888/",
-      fetch: mockFetch,
-    });
+        const result = await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
 
-    const guardrails = new GuardrailsClient({
-      tenantId: "ten_1234",
-      client: transport,
+        expect(result.failed).toBeTruthy();
+        expect(result.errored).toBeFalsy();
     })
-
-    const result = await guardrails.checkText("Something", { guardrailId: body.GuardrailID });
-
-    expect(result.failed).toBeTruthy();
-    expect(result.errored).toBeFalsy();
-  })
 
 });
